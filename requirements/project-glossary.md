@@ -1,8 +1,8 @@
 # Project Glossary
 
-**Project:** _[Your project name]_
-**Team:** _[Team NN]_
-**Client:** _[Client name and organization]_
+**Project:** Drive Grader
+**Team:** _[Team 12]_
+**Client:** Eric Brown
 **Version:** 0.1
 
 ---
@@ -13,15 +13,7 @@ _**What this document is for.** Every project has words that mean something spec
 
 _**Why the glossary is the first artifact you write and the last one you finish.** It is the cheapest document to start, because your client hands you the terms in the first meeting whether you ask or not, and it is the one that keeps paying: every later document cites it instead of redefining things._
 
-## Why this matters when an agent writes your code
 
-_[Read this once, then delete this section when the document goes stable.]_
-
-_If two words in your project mean the same thing and nothing says so, your team will use both. So will your agent. You will end up with a `Team` class and a `Group` table, a `submitReport` endpoint and a `war_entry` record, and every one of those pairs is a bug waiting for the week you try to join them._
-
-_An agent cannot resolve this on its own. Asked to add a feature, it reads what is in the repository and imitates it. If the repository is inconsistent it will faithfully reproduce the inconsistency, and it will invent a plausible synonym for anything the repository never names. A glossary in the repository is the only thing that stops it, because the repository is the whole of the agent's memory of your project._
-
-_The other half is human. When your client says "cycle" in one sentence and "sprint" in the next, that is your signal to ask which one they mean, in the meeting, while they are in front of you. An agent reading the transcript later cannot ask._
 
 ## The entries that earn their place
 
@@ -50,7 +42,7 @@ _Rules:_
 
 | Date | Version | Description | Author |
 |---|---|---|---|
-| _[YYYY-MM-DD]_ | 0.1 | Initial terms from the client brief and first client meeting | _[Name]_ |
+| _[2026-09-11] | 0.1 | Initial terms from the client brief and first client meeting | Joey Macedo |
 
 ---
 
