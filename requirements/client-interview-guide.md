@@ -1,9 +1,9 @@
 # Client Interview Guide
 
-**Project:** _[Your project name]_
-**Team:** _[Team NN]_
-**Client:** _[Client name and organization]_
-**Meeting:** _[Which one. This is meeting 1 of several.]_
+**Project:** Drive Grader
+**Team:** Team 12
+**Client:** _Eric Brown
+**Meeting:** [Meeting #]
 
 ---
 
