@@ -104,9 +104,16 @@ _[Your area codes, then a table of every use case by area. Write this list first
 
 | Area code | Feature area | Use cases |
 |---|---|---|
-| _[RUB]_ | _[Rubric, from `FEAT-...`]_ | _[`UC-RUB-...`]_ |
-
+| _[SESS]_ | _[Drive Session Management]_ | _[`UC-SESS-start-drive-session, UC-SESS-end-drive-session, UC-SESS-view-session-history`]_ |
+| _[GRAD]_ | _[Real-Time Infraction Grading]_ | _[`UC-GRAD-log-infraction, UC-GRAD-review-infraction-log`]_ |
+| _[DL40]_ | _[Digital DL-40 Grade Sheet]_ | _[`UC-DL40-configure-checklist, UC-DL40-conduct-graded-test, UC-DL40-capture-signatures-and-print`]_ |
+| _[HOUR]_ | _[Hour & Requirement Tracking]_ | _[`UC-HOUR-track-progress, UC-HOUR-configure-requirements`]_ |
+| _[OBD]_ | _[OBD-II / Vehicle Data Integration]_ | _[`UC-OBD-pair-device, UC-OBD-stream-vehicle-data`]_ |
+| _[ADMIN]_ | _[Organization & Drive Plan Administration]_ | _[`UC-ADMIN-manage-drive-plans, UC-ADMIN-manage-maneuvers-and-criteria`]_ |
 ---
+
+OBD-II is confirmed hardware (four Bluetooth units purchased) but functionally unverified as of the meeting — whether CAN-bus turn-signal/brake data is exposed at all, and whether it works on EVs, are open questions, not settled requirements. Treat OBD use cases as spikes until that's resolved.
+
 
 ## 4. Use Cases
 
