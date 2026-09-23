@@ -43,6 +43,8 @@ _Rules:_
 | Date | Version | Description | Author |
 |---|---|---|---|
 | _[2026-09-11] | 0.1 | Initial terms from the client brief and first client meeting | Joey Macedo |
+| _[2026-09-23] | 0.2 | Expanded terms after second and third client meeting | Joey Macedo |
+
 
 ---
 
@@ -51,6 +53,36 @@ _Rules:_
 _[One `###` heading per term, alphabetical. Follow the heading with a definition of one to three sentences. Add **Synonyms**, **Not to be confused with**, or **Source** lines where they help. Where a term only makes sense with an example, give one._
 
 _Worked examples of the format:_
+
+### Driving Event
+
+A specific action or condition that occurs during a driving session and can be recorded by Drive Grader. Examples include activating a turn signal, braking, stopping, accelerating, or completing a turn.
+
+### Driving Session
+
+A single period during which a student driver is evaluated using Drive Grader. A session begins when an evaluator starts the assessment and ends when the evaluation is completed or terminated.
+
+**Not to be confused with:** Driving Event, which is one individual action that occurs during a session.
+
+### Evaluator
+
+The person responsible for observing and grading the student driver during a driving session. The evaluator can record behaviors manually and review information detected automatically by Drive Grader.
+
+**Synonyms**: Instructor, grader.
+
+### Event Detection
+
+The process of identifying a driving action or condition using vehicle data, sensors, or evaluator input. For example, the system may detect that a turn signal was activated before the vehicle began turning.
+
+### Infraction
+
+A driving behavior that violates one of the rules or criteria in the grading rubric. An infraction may reduce the student driver's score.
+
+**Synonyms:** Violation, driving error.
+
+### Manual Entry
+
+Information entered directly into Drive Grader by the evaluator instead of being automatically detected. For example, an evaluator may manually record whether a student checked their mirrors before changing lanes.
 
 ### Active Week
 
