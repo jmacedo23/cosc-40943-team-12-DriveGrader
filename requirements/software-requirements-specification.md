@@ -7,262 +7,896 @@
 
 ---
 
-_**How to use this template.** Instructions appear in italic square brackets. Fill in underneath them and leave them in place until the document is stable._
-
-_**What this document is, and what it is not.** The specification describes the external behavior of your system completely enough that a developer can build it and a tester can check it. What it is **not** is a container for everything you have written. Your glossary, vision and scope, use cases, and business rules are separate documents with their own identifiers, and this one **links to them rather than repeating them**._
-
-_That makes the specification mostly a hub. Read that as a feature. One fact, one home: a business rule copied in here is a business rule that will disagree with `business-rules.md` by October, and nobody will notice which copy is right. The sections below that say "link to" are supposed to be short._
-
-_What this document owns outright: the requirements that have no other home. Functional requirements that are not part of any use case, quality attributes, external interfaces, data requirements, operating environment, and constraints._
-
 ## Identifiers
 
-_Every requirement in this document carries a name-based slug. Create only the spaces your project actually needs._
+| Space                     | For                                          | Example                                  |
+| ------------------------- | -------------------------------------------- | ---------------------------------------- |
+| `FR-<AREA>-<slug>`        | Functional requirements outside any use case | `FR-SAVE-autosave-active`                |
+| `UI-<slug>`               | User interface requirements                  | `UI-spa-views`                           |
+| `SI-<slug>`               | Software and system interfaces               | `SI-llm-proxy-only`                      |
+| `CI-<slug>`               | Communications interfaces                    | `CI-email-notifications`                 |
+| `DI-<slug>`               | Data requirements                            | `DI-persist-graph`                       |
+| `OE-<slug>`               | Operating environment                        | `OE-supported-browsers`                  |
+| `CO-<slug>`               | Design and implementation constraints        | `CO-single-application`                  |
+| `AS-<slug>` / `DE-<slug>` | Assumptions and dependencies                 | `AS-supported-browser`, `DE-llm-service` |
 
-| Space | For | Example |
-|---|---|---|
-| `FR-<AREA>-<slug>` | Functional requirements outside any use case | `FR-SAVE-autosave-active` |
-| `UI-<slug>` | User interface requirements | `UI-spa-views` |
-| `SI-<slug>` | Software and system interfaces | `SI-llm-proxy-only` |
-| `CI-<slug>` | Communications interfaces | `CI-email-notifications` |
-| `DI-<slug>` | Data requirements | `DI-persist-graph` |
-| `OE-<slug>` | Operating environment | `OE-supported-browsers` |
-| `CO-<slug>` | Design and implementation constraints | `CO-single-application` |
-| `AS-<slug>` / `DE-<slug>` | Assumptions and dependencies | `AS-supported-browser`, `DE-llm-service` |
+Quality attributes use the following prefixes:
 
-_Quality attributes get one space per attribute, so the identifier says which kind of quality it is at the place it is cited: `USE-` usability, `PER-` performance, `SEC-` security, `SAF-` safety, `AVL-` availability, `ROB-` robustness, `SCA-` scalability, `INT-` interoperability, `MNT-` maintainability._
+* `USE-` — Usability
+* `PER-` — Performance
+* `SEC-` — Security
+* `SAF-` — Safety
+* `AVL-` — Availability
+* `ROB-` — Robustness
+* `SCA-` — Scalability
+* `INT-` — Interoperability
+* `MNT-` — Maintainability
 
-_Requirements cited from elsewhere keep their own identifiers: `UC-*` from [use-cases.md](use-cases.md), `BR-*` from [business-rules.md](business-rules.md), `BO-*`, `SM-*`, `FEAT-*` from [vision-and-scope.md](vision-and-scope.md)._
+Requirements cited from other documents retain their own identifiers, such as `UC-*`, `BR-*`, `BO-*`, `SM-*`, and `FEAT-*`.
+
+---
 
 ## Revision History
 
-| Date | Version | Description | Author |
-|---|---|---|---|
-| _[YYYY-MM-DD]_ | 0.1 | Initial draft | _[Name]_ |
+| Date       | Version | Description   | Author  |
+| ---------- | ------- | ------------- | ------- |
+| 2026-09-23 | 0.1     | Initial draft | Team 12 |
 
 ---
 
-## 1. Introduction
+# 1. Introduction
 
-### 1.1 The purpose of _[project name]_
+## 1.1 The purpose of Drive Grader
 
-_[What the system is for: who wants it, why, and who will use it. Even though the vision and scope answers this, restate it in a paragraph here, because people read this document without having read that one.]_
+Drive Grader is a mobile-first driving training assistant designed to help parents provide behind-the-wheel training to their teenage children. The system provides structure for driving practice by allowing users to track drive time and routes, monitor driving metrics, record infractions, and review driving performance.
 
-### 1.2 The purpose of this document
+The system also supports a digital DL-40 grading workflow for instructors and examiners. The application allows grading items to be arranged to match a specific driving route and supports recording maneuvers as they occur during a drive.
 
-_[What this specification covers and for which release.]_
+## 1.2 The purpose of this document
 
-_Example: "This document describes the functional and nonfunctional requirements for release 1.0 of the Cafeteria Ordering System. It serves as the reference for the project's requirements, defining the scope, functionality, and constraints for stakeholders, developers, and testers."]_
+This document describes the functional and nonfunctional software requirements for Drive Grader. It provides requirements for the application's behavior, interfaces, data, operating environment, constraints, and quality attributes.
 
-### 1.3 Document conventions
+The project is intended to produce a working MVP by the end of the semester, with final project handoff planned around January.
 
-_[Any typographical conventions, and the identifier formats above, so that someone adding a requirement later knows how to name it.]_
+## 1.3 Document conventions
 
-### 1.4 References
+Requirements use the identifier prefixes defined in the Identifiers section.
 
-_[Every document this specification refers to, with a link. At minimum, the four other documents in this folder. Include external standards you must conform to.]_
+Functional requirements use EARS-style statements where applicable, including:
 
-- _[Project glossary](project-glossary.md)_
-- _[Vision and scope](vision-and-scope.md)_
-- _[Use cases](use-cases.md)_
-- _[Business rules](business-rules.md)_
-- _[Open issues](OPEN-ISSUES.md)_
-- _[The Easy Approach to Requirements Syntax (EARS)](https://alistairmavin.com/ears/)_
+* Ubiquitous requirements.
+* Event-driven requirements.
+* State-driven requirements.
+* Optional requirements.
+* Unwanted-behavior requirements.
 
----
+`[TBD]` indicates information that has not yet been established by the project team or client.
 
-## 2. Overall Description
+Numerical requirements and thresholds are not specified unless they have been established by the project information available to the team.
 
-### 2.1 Product perspective
+## 1.4 References
 
-_[How this system relates to other systems and to the user's environment. Self-contained, or one component of something larger? Link to the product perspective section of your vision and scope and to your architecture's context diagram rather than redrawing them.]_
-
-### 2.2 User classes and characteristics
-
-_[The kinds of user, and what distinguishes them: frequency of use, technical skill, privilege level, whether they are inside or outside the client's organization. Link to the stakeholder profiles in your vision and scope; what belongs here is what affects the software's behavior, especially permissions.]_
-
-### 2.3 Operating environment
-
-_[The environment the software runs in: hardware, operating systems and versions, browsers, where users and servers are located, and any other software it has to coexist with.]_
-
-_Examples:_
-
-- _`OE-supported-browsers`: The system shall operate correctly on the current and previous major versions of Chrome, Firefox, Safari, and Edge._
-- _`OE-server-platform`: The system shall run on a server running the current corporate-approved version of Linux._
-- _`OE-access-paths`: The system shall permit access from the corporate intranet, from a VPN connection, and from Android and iOS phones and tablets._
-
-### 2.4 Design and implementation constraints
-
-_[Anything that limits the developers' options: corporate or regulatory policy, hardware limits, required languages or databases, coding standards, interfaces to other applications.]_
-
-_Examples:_
-
-- _`CO-database-engine`: The system shall use the corporate standard database engine._
-- _`CO-language-version`: The backend shall be written in Java 21._
-- _`CO-coding-standard`: Design, code, and maintenance documentation shall conform to the client's development standard._
-
-_The constraint students forget: **who maintains this after you graduate, and what do they already know how to run?** If the answer is one person who knows Python, a Spring Boot service is a constraint violation nobody wrote down._
-
-### 2.5 Assumptions and dependencies
-
-_[An assumption is a factor you believe true without proof, which would change these requirements if it turned out false. A dependency is something outside your control that the project relies on: an external API, a third-party library, a change someone else has to make.]_
-
-_Examples:_
-
-- _`AS-supported-browser`: Users access the system with a browser that supports the ECMAScript version the frontend targets._
-- _`DE-payroll-integration`: Operation depends on changes being made in the Payroll System to accept payment requests for meals ordered through this system._
+* [Project glossary](project-glossary.md)
+* [Vision and scope](vision-and-scope.md)
+* [Use cases](use-cases.md)
+* [Business rules](business-rules.md)
+* [Open issues](OPEN-ISSUES.md)
+* Drive Grader Project Brief
+* Drive Grader Client Meeting Transcript & Project Notes
+* [The Easy Approach to Requirements Syntax (EARS)](https://alistairmavin.com/ears/)
 
 ---
 
-## 3. Project Glossary
+# 2. Overall Description
 
-_[Link only. The glossary is [project-glossary.md](project-glossary.md).]_
+## 2.1 Product perspective
 
-## 4. Vision and Scope
+Drive Grader is a mobile-first web application that provides driving-training assistance, drive tracking, and driving evaluation functionality.
 
-_[Link only. Business requirements, objectives, metrics, and scope live in [vision-and-scope.md](vision-and-scope.md).]_
+The current system uses a Quasar/Vue frontend, a Node.js API backend, MySQL 8, OpenStreetMap for mapping, and Progressive Web App functionality. The project is based on an existing proof-of-concept application that can track a real-time drive using GPS.
+
+The system may also integrate with Bluetooth OBD2 devices to provide additional vehicle data. OBD2 integration is being investigated and tested as part of the project.
+
+The system includes an administration interface for organizations, drive plans, maneuvers, score criteria, session times, and integration settings.
+
+The application may eventually use Capacitor to provide native iOS and Android functionality.
+
+## 2.2 User classes and characteristics
+
+### Parent / Guardian
+
+Parents or guardians who provide behind-the-wheel driving instruction to a teenage driver.
+
+Parents may have little or no formal driver-training expertise and therefore require an intuitive interface that provides structure and guidance during driving practice.
+
+### Student / Driver
+
+The teenage driver receiving driving instruction.
+
+The student's driving sessions, routes, training hours, driving metrics, and recorded infractions may be associated with their driver profile.
+
+### Instructor / Examiner
+
+Driving instructors and examiners who use Drive Grader to provide instruction or evaluate driving performance.
+
+Instructors and examiners may use drive tracking, infraction logging, and the digital DL-40 grading functionality.
+
+### Organization Administrator
+
+A user responsible for managing an organization within Drive Grader.
+
+Organization administrators may manage organizations, drive plans, maneuvers, score criteria, session times, and integration settings.
+
+Exact permissions are [TBD].
+
+### System Administrator
+
+A user responsible for system-level account and access management.
+
+Exact system administrator permissions are [TBD].
+
+## 2.3 Operating environment
+
+### Client devices
+
+The system shall be designed as a mobile-first responsive web application.
+
+The application shall support Progressive Web App functionality.
+
+The application may later be wrapped using Capacitor to provide native iOS and Android functionality.
+
+### Frontend
+
+The frontend shall use Quasar with Vue.
+
+### Backend
+
+The API shall use Node.js.
+
+### Database
+
+The backend shall use MySQL 8.
+
+### Mapping
+
+The system shall use OpenStreetMap for mapping and route visualization.
+
+### Development environment
+
+Babbage is used for applicable development and testing activities.
+
+Tailscale is used as part of the team's development and network environment where applicable.
+
+### OBD2 environment
+
+The project has Bluetooth OBD2 devices available for testing.
+
+OBD Home is used to connect to and test the available OBD2 devices.
+
+Specific supported browsers, browser versions, operating-system versions, and minimum device requirements are [TBD].
+
+**OE-responsive-web:** The system shall provide a responsive interface across supported screen sizes.
+
+**OE-mobile-access:** The system shall support access through supported mobile devices.
+
+**OE-pwa:** The system shall support deployment as a Progressive Web App.
+
+## 2.4 Design and implementation constraints
+
+**CO-frontend-framework:** The frontend shall use Quasar with Vue.
+
+**CO-backend:** The backend API shall use Node.js.
+
+**CO-database:** The system shall use MySQL 8 as its backend database.
+
+**CO-mobile-first:** The application shall be designed as a mobile-first application.
+
+**CO-pwa:** The initial application shall support Progressive Web App functionality.
+
+**CO-capacitor:** Capacitor may be used to provide native mobile functionality where required.
+
+**CO-mapping:** Mapping functionality shall use OpenStreetMap.
+
+**CO-existing-application:** The project shall build upon the client's existing Drive Grader proof of concept where appropriate.
+
+**CO-obd2-testing:** Available OBD2 devices shall be used for testing the planned vehicle-data integration.
+
+**CO-obd-home:** OBD Home may be used during development to connect to and test the OBD2 devices.
+
+**CO-github:** The project shall use the client's GitHub organization for source-code management.
+
+**CO-github-actions:** GitHub Actions shall be used for the existing automated deployment process to the staging environment where applicable.
+
+**CO-mvp:** The project shall prioritize a working MVP by the end of the semester.
+
+## 2.5 Assumptions and dependencies
+
+**AS-device-gps:** Drive tracking assumes that the user's device provides GPS access.
+
+**AS-device-accelerometer:** Accelerometer-based driving metrics depend on device accelerometer access.
+
+**AS-supported-browser:** Users are assumed to access the application through a supported browser or supported mobile application environment.
+
+**AS-existing-poc:** The existing Drive Grader proof of concept provides a starting point for the project.
+
+**DE-openstreetmap:** Mapping functionality depends on OpenStreetMap.
+
+**DE-mysql:** Backend data storage depends on MySQL 8.
+
+**DE-obd2-hardware:** Optional vehicle-data functionality depends on compatible OBD2 hardware.
+
+**DE-obd2-data:** OBD2 functionality depends on whether the selected devices provide the vehicle data required by the application.
+
+**DE-obd-home:** OBD2 testing depends on communication between OBD Home and the selected OBD2 hardware.
+
+**DE-capacitor:** Native mobile functionality depends on implementation of Capacitor.
+
+**DE-github:** Development depends on access to the client's GitHub organization.
+
+**DE-github-actions:** Automated staging deployment depends on the existing GitHub Actions configuration.
+
+**DE-ai:** AI functionality is optional and depends on the team identifying a useful application for AI within Drive Grader.
 
 ---
 
-## 5. Functional Requirements
+# 3. Project Glossary
 
-### 5.1 Use cases
-
-_[Link to [use-cases.md](use-cases.md). Most of your system's behavior is specified there, as use cases, and it does not get restated here.]_
-
-### 5.2 Non-use-case functional requirements
-
-_[Behavior that is real, testable, and belongs to no single use case: autosave, validation applied everywhere, notification, authorization, audit logging. If you find yourself writing the same step into six use cases, it belongs here instead._
-
-_Group them under sub-headings by concern, and write each one using an [EARS](https://alistairmavin.com/ears/) shape so that it cannot be read two ways:_
-
-- _**Ubiquitous:** The `<system>` shall `<response>`._
-- _**Event driven:** When `<trigger>`, the `<system>` shall `<response>`._
-- _**State driven:** While `<in a state>`, the `<system>` shall `<response>`._
-- _**Optional:** Where `<feature is included>`, the `<system>` shall `<response>`._
-- _**Unwanted behavior:** If `<precondition>`, then the `<system>` shall `<response>`._
-
-_Example: `FR-SAVE-autosave-active`: While a student is editing a weekly activity report during an active week, the system shall persist the draft every 30 seconds._
-
-_**Every requirement here needs an oracle.** If you cannot say how a tester would tell whether it holds, it is not a requirement yet.]_
+See [project-glossary.md](project-glossary.md).
 
 ---
 
-## 6. Business Rules
+# 4. Vision and Scope
 
-_[Link only, to [business-rules.md](business-rules.md). Business rules are a rich source of requirements because they dictate properties the system must have in order to conform to them, but the rules themselves are properties of the client's business, not of your software, and they have their own document.]_
+See [vision-and-scope.md](vision-and-scope.md).
+
+Business requirements, objectives, metrics, and scope are maintained in that document.
 
 ---
 
-## 7. Data Requirements
+# 5. Functional Requirements
 
-### 7.1 Business domain model
+## 5.1 Use cases
 
-_[The entities in the problem domain and how they relate, as a mermaid class diagram. Model the **business**, not your database schema: this is what the client would recognize, before any decision about tables or persistence.]_
+See [use-cases.md](use-cases.md).
 
-    ```mermaid
-    classDiagram
-      class Team {
+Use cases define the primary user interactions and system behavior associated with those interactions.
+
+Known use-case areas include:
+
+* Starting a drive.
+* Ending a drive.
+* Tracking a drive.
+* Logging driving infractions.
+* Reviewing a completed drive.
+* Tracking training hours.
+* Performing digital DL-40 grading.
+* Managing driver information.
+* Managing organizations and accounts.
+
+## 5.2 Non-use-case functional requirements
+
+### Account and access management
+
+**FR-ACCOUNT-manage:** The system shall provide functionality for managing user accounts.
+
+**FR-ACCOUNT-access:** The system shall control access to functionality according to the user's assigned permissions.
+
+**FR-ACCOUNT-organizations:** The system shall support organizations within the administration system.
+
+### Drive sessions
+
+**FR-DRIVE-start:** When a user begins a drive session, the system shall begin recording available drive information.
+
+**FR-DRIVE-save:** When a drive session ends, the system shall save the associated drive information.
+
+**FR-DRIVE-route:** While a drive session is active, the system shall record available GPS route information.
+
+**FR-DRIVE-summary:** When a drive session ends, the system shall provide the recorded route and logged infractions for review.
+
+### Driving metrics
+
+**FR-METRICS-gps:** While a drive session is active, the system shall record available GPS information.
+
+**FR-METRICS-speed:** Where available from GPS data, the system shall record driving speed.
+
+**FR-METRICS-accelerometer:** Where device accelerometer data is available, the system shall record accelerometer information.
+
+**FR-METRICS-braking:** Where supported by available sensor data, the system shall record information relevant to hard braking.
+
+**FR-METRICS-turning:** Where supported by available sensor data, the system shall record information relevant to hard turns.
+
+**FR-METRICS-gforce:** Where supported by available sensor data, the system shall record G-force information.
+
+Exact thresholds for identifying hard braking, hard turns, or other driving events are [TBD].
+
+### Infraction logging
+
+**FR-INFRACTION-record:** When a parent, instructor, or examiner selects a grading topic during an active drive, the system shall record the selected infraction.
+
+Known grading topics include:
+
+* Following distance.
+* Smooth braking.
+* Failure to control speed.
+* Lane discipline.
+* Situational awareness.
+
+The complete list of grading categories and scoring criteria is [TBD].
+
+### Training-hour tracking
+
+**FR-HOURS-record:** The system shall support recording driving-training hours.
+
+**FR-HOURS-categories:** The system shall support tracking hours by training category.
+
+Known categories include:
+
+* General logged driving.
+* Behind-the-wheel instruction.
+* Observation.
+
+**FR-HOURS-progress:** The system shall support displaying progress toward the applicable training-hour requirements.
+
+The known requirements are:
+
+* 30 hours of general logged driving.
+* 7 hours of behind-the-wheel instruction.
+* 7 hours of observation.
+
+### Digital DL-40 grading
+
+**FR-DL40-digital:** The system shall provide a digital grading workflow based on the Texas DL-40.
+
+**FR-DL40-reorder:** The system shall allow DL-40 grading items to be reordered to match a specific driving route.
+
+**FR-DL40-driver:** The system shall allow driver information to be associated with a DL-40 grading session.
+
+**FR-DL40-guardian:** The system shall allow parent or guardian information to be associated with a DL-40 grading session.
+
+**FR-DL40-signatures:** The system shall support capturing required signatures.
+
+**FR-DL40-maneuvers:** The system shall support grading driving maneuvers including:
+
+* Parking.
+* Merge.
+* Lane change.
+* Approach-to-corner.
+* Traffic signal.
+* Traffic sign.
+* Left turns.
+* Right turns.
+* Backing.
+
+**FR-DL40-route-order:** During a grading session, the system shall allow grading items to be recorded in the order they occur on the route.
+
+**FR-DL40-output:** When grading is complete, the system shall support producing a completed DL-40 grade sheet.
+
+Exact DL-40 fields, scoring rules, output formatting, and printing requirements are [TBD].
+
+### Administration
+
+**FR-ADMIN-organizations:** The system shall support organization management.
+
+**FR-ADMIN-drive-plans:** The system shall support drive-plan management.
+
+**FR-ADMIN-maneuvers:** The system shall support maneuver management.
+
+**FR-ADMIN-score-criteria:** The system shall support score-criteria management.
+
+**FR-ADMIN-session-times:** The system shall support session-time management.
+
+**FR-ADMIN-integrations:** The system shall support integration-setting management.
+
+Exact administrative permissions are [TBD].
+
+### OBD2
+
+**FR-OBD2-connect:** Where OBD2 functionality is included, the system shall support connection to a compatible OBD2 device.
+
+**FR-OBD2-bluetooth:** Where supported by the device and application environment, the system shall communicate with the OBD2 device over Bluetooth.
+
+**FR-OBD2-data:** Where supported by the connected device, the system shall receive available vehicle data.
+
+**FR-OBD2-correlate:** Where supported, the system shall allow OBD2 data to be associated with GPS and other drive-session data.
+
+Vehicle information currently being investigated includes:
+
+* Engine speed/RPM.
+* Turn-signal use.
+* Brake-light activation.
+* Other available engine and vehicle metrics.
+
+Whether the selected OBD2 devices provide turn-signal and brake-light information is [TBD].
+
+### Optional AI
+
+**FR-AI-optional:** AI functionality is optional for the initial system.
+
+**FR-AI-analysis:** Where implemented, AI may analyze driving-session metrics.
+
+**FR-AI-comparison:** Where implemented, AI may compare driving-session metrics with other drives.
+
+The specific AI functionality and requirements are [TBD].
+
+---
+
+# 6. Business Rules
+
+See [business-rules.md](business-rules.md).
+
+Business rules are maintained in the business-rules document rather than duplicated here.
+
+Known business-rule areas include:
+
+* Required driving hours.
+* DL-40 grading requirements.
+* Driver and guardian information.
+* Grading criteria.
+* Organization and account permissions.
+
+---
+
+# 7. Data Requirements
+
+## 7.1 Business domain model
+
+The following preliminary domain entities are based on the known Drive Grader functionality:
+
+```mermaid
+classDiagram
+    class Organization {
         +String name
-      }
-      class Student {
-        +String email
-      }
-      Team "1" --> "*" Student : has
-    ```
+    }
 
-### 7.2 Data dictionary
+    class User {
+        +String account
+    }
 
-_[Each entity's fields, with data type, allowed values, defaults, and validation rules. Where a use case already specifies a field's validation in its Associated Information, cite the use case instead of repeating it.]_
+    class Driver {
+        +String profile
+    }
 
-### 7.3 Reports
+    class ParentGuardian {
+        +String information
+    }
 
-_[Any report the system generates: who reads it, what it contains, how often, and in what format. Reports are where clients discover late that a field they need was never captured, so specify them early.]_
+    class InstructorExaminer {
+        +String information
+    }
 
-### 7.4 Data acquisition, integrity, retention, and disposal
+    class DrivePlan {
+        +String name
+    }
 
-_[Where the data comes from, how it is kept correct, how long it is kept, and how it is destroyed. If your system holds anything about students or other identifiable people, this section is not optional, and its content is usually a business rule you should cite rather than invent.]_
+    class DriveSession {
+        +String name
+        +DateTime startTime
+        +DateTime endTime
+    }
+
+    class Route {
+        +GPSData routeData
+    }
+
+    class Infraction {
+        +String category
+        +DateTime timestamp
+    }
+
+    class DrivingMetric {
+        +GPSData gpsData
+        +AccelerometerData accelerometerData
+    }
+
+    class TrainingHours {
+        +Number generalDriving
+        +Number behindTheWheel
+        +Number observation
+    }
+
+    class Maneuver {
+        +String name
+    }
+
+    class ScoreCriteria {
+        +String criteria
+    }
+
+    class DL40GradeSheet {
+        +String gradingData
+        +String signatures
+    }
+
+    class OBD2Device {
+        +String deviceInformation
+    }
+
+    Organization "1" --> "*" User : contains
+    User "1" --> "*" Driver : manages
+    Driver "1" --> "*" DriveSession : has
+    ParentGuardian "1" --> "*" Driver : trains
+    InstructorExaminer "1" --> "*" DriveSession : conducts
+    DrivePlan "1" --> "*" DriveSession : defines
+    DriveSession "1" --> "1" Route : records
+    DriveSession "1" --> "*" Infraction : contains
+    DriveSession "1" --> "*" DrivingMetric : records
+    Driver "1" --> "*" TrainingHours : tracks
+    DrivePlan "1" --> "*" Maneuver : contains
+    Maneuver "1" --> "*" ScoreCriteria : uses
+    DriveSession "1" --> "0..1" DL40GradeSheet : produces
+    DriveSession "0..1" --> "1" OBD2Device : uses
+```
+
+This is a preliminary domain model. The final business entities and relationships are [TBD].
+
+## 7.2 Data dictionary
+
+| Entity            | Data                        | Description                                                       |
+| ----------------- | --------------------------- | ----------------------------------------------------------------- |
+| User              | Account information         | Information required to manage a user account and access.         |
+| Organization      | Organization information    | Information associated with an organization using Drive Grader.   |
+| Driver            | Driver profile              | Information identifying the person receiving driving instruction. |
+| Parent/Guardian   | Parent/guardian information | Information associated with the person providing instruction.     |
+| Drive Plan        | Plan information            | Information defining a driving plan.                              |
+| Drive Session     | Session information         | Information about a recorded driving session.                     |
+| Route             | GPS route data              | GPS information representing the route driven.                    |
+| Infraction        | Category and timestamp      | A driving mistake recorded during a drive.                        |
+| Driving Metric    | GPS/accelerometer data      | Sensor information collected during a drive.                      |
+| Training Hours    | Hours by category           | Recorded training time for the driver.                            |
+| Maneuver          | Maneuver information        | A driving maneuver used during training or grading.               |
+| Score Criteria    | Criteria information        | Criteria used to evaluate driving performance.                    |
+| DL-40 Grade Sheet | Grading data/signatures     | Digital DL-40 grading information and signatures.                 |
+| OBD2 Device       | Device/vehicle information  | Information associated with a connected OBD2 device.              |
+
+Exact data types, validation rules, defaults, and required fields are [TBD].
+
+## 7.3 Reports
+
+### Drive Session Summary
+
+The system shall provide a summary of a completed drive containing, where available:
+
+* The route driven.
+* Logged infractions.
+* Infraction timestamps.
+* Available driving metrics.
+
+The exact format is [TBD].
+
+### Training-Hour Progress
+
+The system shall support displaying recorded training hours and progress toward applicable training-hour requirements.
+
+The exact format is [TBD].
+
+### DL-40 Grade Sheet
+
+The system shall support producing a completed DL-40 grade sheet following a digital grading session.
+
+The exact output format is [TBD].
+
+## 7.4 Data acquisition, integrity, retention, and disposal
+
+### Data acquisition
+
+The system may acquire data from:
+
+* User-entered account information.
+* Driver information.
+* Parent/guardian information.
+* GPS.
+* Device accelerometer.
+* OBD2 devices.
+* Drive-session grading inputs.
+* DL-40 grading inputs.
+* Captured signatures.
+
+### Data integrity
+
+The system shall associate drive data with the appropriate drive session.
+
+The system shall associate infractions with the drive session in which they were recorded.
+
+The system shall associate training hours with the appropriate driver and training category.
+
+Additional data-integrity requirements are [TBD].
+
+### Data retention
+
+The required retention period for drive sessions, routes, infractions, training hours, account information, and grading records is [TBD].
+
+### Data disposal
+
+The process for deleting or disposing of stored account, drive, and grading data is [TBD].
 
 ---
 
-## 8. External Interface Requirements
+# 8. External Interface Requirements
 
-### 8.1 User interfaces
+## 8.1 User interfaces
 
-_[The user-facing surfaces, at requirement level: which views exist, standards they must conform to, accessibility requirements. Link to wireframes or prototypes rather than describing pixel layouts.]_
+**UI-responsive:** The application shall provide a responsive user interface designed for mobile-first use.
 
-### 8.2 Hardware interfaces
+**UI-pwa:** The application shall support Progressive Web App functionality.
 
-_[Any hardware the system talks to, or "none".]_
+**UI-drive-session:** The application shall provide an interface for starting and ending drive sessions.
 
-### 8.3 Software interfaces
+**UI-live-route:** The application shall provide an interface for viewing the route during an active drive.
 
-_[Other software systems yours connects to: what crosses the boundary, in which direction, in what format, and what happens when the other side is unavailable.]_
+**UI-infraction:** The application shall provide an interface for logging driving infractions.
 
-### 8.4 API document
+**UI-summary:** The application shall provide an interface for reviewing completed drive information.
 
-_[Link to your API documentation. It is generated from the code, so link it rather than transcribing endpoints that will be stale within a week.]_
+**UI-dl40:** The application shall provide an interface for digital DL-40 grading.
 
-### 8.5 Communications interfaces
+**UI-administration:** The application shall provide an administration interface for supported administrative functionality.
 
-_[Email, notifications, messaging, and the protocols involved.]_
+The client has not specified a particular visual design. The primary design requirement is that the application be intuitive.
+
+Specific accessibility requirements, layouts, colors, typography, and other visual standards are [TBD].
+
+## 8.2 Hardware interfaces
+
+### Mobile device GPS
+
+**SI-GPS:** The system shall support receiving GPS location information from the user's mobile device where available.
+
+GPS information shall be used to track and display the route driven.
+
+### Mobile device accelerometer
+
+**SI-ACCELEROMETER:** Where supported by the mobile device, the system shall support receiving accelerometer information.
+
+Accelerometer information shall be used to support driving metrics.
+
+### OBD2 device
+
+**SI-OBD2:** Where OBD2 functionality is included, the system shall support communication with compatible OBD2 devices.
+
+**SI-OBD2-BLUETOOTH:** The planned OBD2 devices communicate with a phone using Bluetooth.
+
+**SI-OBD2-DATA:** Where supported by the device, the system shall receive available vehicle data.
+
+OBD Home may be used to connect to and test the OBD2 devices during development.
+
+The exact vehicle data available from the selected devices is [TBD].
+
+## 8.3 Software interfaces
+
+### OpenStreetMap
+
+**SI-OSM:** The system shall use OpenStreetMap for mapping and route visualization.
+
+### Node.js API
+
+**SI-NODE:** The frontend shall communicate with the Node.js backend API.
+
+The exact API endpoints and data formats are [TBD].
+
+### MySQL 8
+
+**SI-MYSQL:** The backend shall use MySQL 8 for persistent data storage.
+
+### Quasar/Vue
+
+**SI-QUASAR:** The user interface shall be implemented using Quasar with Vue.
+
+### Capacitor
+
+**SI-CAPACITOR:** Where implemented, Capacitor shall provide native mobile access to supported device capabilities.
+
+### OBD Home
+
+**SI-OBDHOME:** OBD Home may be used as a development/testing tool for communicating with the available OBD2 devices.
+
+OBD Home is not currently established as a required production dependency.
+
+### GitHub and GitHub Actions
+
+**SI-GITHUB:** The project source code shall be maintained within the client's GitHub organization.
+
+**SI-GITHUB-ACTIONS:** GitHub Actions shall support the existing automated deployment process to the staging environment where applicable.
+
+### AI
+
+**SI-AI:** Where AI functionality is implemented, the system may communicate with an AI service or model.
+
+The specific AI service and interface are [TBD].
+
+## 8.4 API document
+
+The Drive Grader backend shall provide an API implemented using Node.js.
+
+The API shall provide communication between the frontend and backend.
+
+The complete API documentation and endpoint definitions are [TBD].
+
+## 8.5 Communications interfaces
+
+The system shall support communication between the frontend and backend through the application API.
+
+Where supported, the system shall communicate with OBD2 devices over Bluetooth.
+
+The system may communicate with external mapping and AI services.
+
+Tailscale may be used as part of the team's development and network environment.
+
+Specific communication protocols and data formats are [TBD].
 
 ---
 
-## 9. Quality Attributes
+# 9. Quality Attributes
 
-_[How well the system does what it does. **This is the section that decides whether your client is happy with software that meets every functional requirement**, so do not treat it as a formality.]_
+## 9.1 Usability
 
-_The rule for every entry: an adjective is not a requirement. "Fast", "easy", "secure", and "user-friendly" are the starting point of a conversation, not the end of one. Each entry needs a number and a way to measure it._
+**USE-mobile-first:** The application shall be designed primarily for use on mobile devices.
 
-_Write one subsection per attribute your project actually has, and say "not applicable" with a reason for the ones it does not. An explicit "not applicable" is information; silence is not._
+**USE-responsive:** The application shall provide a responsive interface across supported screen sizes.
 
-### 9.1 Usability
+**USE-intuitive:** The application shall provide an intuitive interface that allows users to understand the primary functions without extensive training.
 
-_Example: `USE-wcag-aa`: All user-facing views shall conform to WCAG 2.1 level AA._
+Specific usability metrics and accessibility requirements are [TBD].
 
-### 9.2 Performance
+## 9.2 Performance
 
-_Example: `PER-report-load`: A peer evaluation report for a section of 80 students shall render within 2 seconds at the 95th percentile._
+**PER-drive-tracking:** While a drive is active, the system shall support real-time GPS tracking where required device access is available.
 
-### 9.3 Security
+**PER-infraction:** During an active drive, the system shall support recording infractions when selected by the user.
 
-_Example: `SEC-authentication`: The system shall authenticate every request to a non-public endpoint, and shall reject unauthenticated requests without disclosing whether the requested resource exists._
+**PER-route:** The system shall support displaying the route associated with a drive session.
 
-### 9.4 Safety
+Specific response-time and sensor-update requirements are [TBD].
 
-_[Conditions under which the system could contribute to harm, and what prevents it. For most projects in this course the honest answer is `SAF-not-applicable`, with a sentence saying why.]_
+## 9.3 Security
 
-### 9.5 Availability
+**SEC-account:** The system shall provide account access controls.
 
-_Example: `AVL-uptime`: The system shall be available 99% of the time during the academic term, excluding announced maintenance windows._
+**SEC-permissions:** The system shall restrict functionality according to applicable user permissions.
 
-### 9.6 Robustness
+**SEC-driver-data:** The system shall associate driver information and drive data with the appropriate account or organization.
 
-_Example: `ROB-edit-loss-bound`: On an unexpected client disconnect, the system shall lose no more than 30 seconds of a student's in-progress edits._
+Specific authentication, authorization, encryption, and audit requirements are [TBD].
 
-### 9.7 Scalability, interoperability, maintainability
+## 9.4 Safety
 
-_[Add the ones that apply, with `SCA-`, `INT-`, and `MNT-` identifiers. Maintainability is the one this course cares about most, because someone inherits your code in January.]_
+**SAF-driving:** The system is intended to be used during driving instruction and evaluation.
+
+The application should minimize interaction requirements that could interfere with safe vehicle operation.
+
+Specific safety warnings, interaction restrictions, and requirements for use while driving are [TBD].
+
+## 9.5 Availability
+
+**AVL-system:** The application shall be available through its supported deployment environment.
+
+The existing development workflow uses a staging environment with automated deployment through GitHub Actions.
+
+Specific uptime requirements and maintenance windows are [TBD].
+
+## 9.6 Robustness
+
+**ROB-gps:** If GPS data is unavailable, the system shall handle the missing GPS information without preventing functionality that does not require GPS.
+
+**ROB-obd2:** If an optional OBD2 device is unavailable, the system shall support functionality that does not depend on OBD2 data.
+
+**ROB-device-api:** If a required device API is unavailable, the system shall handle the unavailable functionality.
+
+**ROB-external:** If an external service becomes unavailable, the system shall handle the unavailable service.
+
+Specific recovery behavior and offline requirements are [TBD].
+
+## 9.7 Scalability, interoperability, maintainability
+
+### Scalability
+
+**SCA-organizations:** The system shall support multiple organizations within the administration system.
+
+The expected number of organizations, users, concurrent drives, and stored sessions is [TBD].
+
+### Interoperability
+
+**INT-obd2:** Where implemented, the system shall support communication with compatible OBD2 devices.
+
+**INT-mobile:** Where implemented, the system shall support native mobile functionality through Capacitor.
+
+**INT-mapping:** The system shall use OpenStreetMap for mapping.
+
+**INT-api:** The frontend and backend shall communicate through the Node.js API.
+
+Specific supported devices, browsers, operating systems, and integrations are [TBD].
+
+### Maintainability
+
+**MNT-quasar:** The frontend shall use Quasar/Vue.
+
+**MNT-node:** The backend shall use Node.js.
+
+**MNT-mysql:** The backend shall use MySQL 8.
+
+**MNT-existing:** The project shall build upon the existing proof of concept where appropriate.
+
+**MNT-documentation:** The project shall maintain documentation necessary for continued development and final project handoff.
+
+Specific coding standards, testing requirements, and documentation standards are [TBD].
 
 ---
 
-## 10. Internationalization and Localization
+# 10. Internationalization and Localization
 
-_[Languages, character sets, time zones, date and currency formats. If the answer is a single locale, say so and say why, because that is a real constraint on who can use the system.]_
+Drive Grader is initially intended for use in Texas and incorporates Texas driver-training and road-test requirements.
+
+Known localization considerations include:
+
+* Texas DL-40 requirements.
+* Driving-hour requirements.
+* Geographic route information.
+* Date and time information.
+* Driving measurements.
+
+The supported language, exact locale, date/time format, and unit requirements are [TBD].
 
 ---
 
-## 11. Other Requirements
+# 11. Other Requirements
 
-_[Anything real that fits nowhere above: legal, licensing, installation, training, documentation. Delete this section if it is empty rather than leaving it as a placeholder.]_
+## 11.1 Project delivery
+
+The project is expected to produce a working MVP by the end of the semester.
+
+Final project handoff is planned around January.
+
+The exact final delivery date and final MVP feature list are [TBD].
+
+## 11.2 Development and deployment
+
+The project uses the client's GitHub organization for source-code management.
+
+GitHub Actions are used to automatically deploy pushed code to the staging environment.
+
+The team may use AI coding tools provided by the client.
+
+Babbage may be used for development and testing.
+
+Tailscale may be used as part of the development and network environment.
+
+## 11.3 Optional and future functionality
+
+The following functionality is optional, under investigation, or intended for future development:
+
+* OBD2 vehicle-data integration.
+* Turn-signal detection through vehicle data.
+* Brake-light detection through vehicle data.
+* Camera/video through the phone.
+* AI-based driving-session analysis.
+* AI comparison of driving sessions.
+* Native iOS/Android deployment using Capacitor.
+* Fleet tracking.
+* Parent observation of instructor/student progress.
+* Additional external integrations.
+
+## 11.4 Open issues
+
+The following issues remain to be determined:
+
+1. Can the selected OBD2 devices provide turn-signal and brake-light data?
+2. How does OBD2 integration behave with electric vehicles?
+3. Is PWA functionality sufficient for the required Bluetooth/OBD2 device access?
+4. Is a Capacitor implementation required for the final product?
+5. What exact browser and operating-system versions must be supported?
+6. What exact user roles and permissions are required?
+7. What are the complete DL-40 fields and grading rules?
+8. What are the exact data-retention and disposal requirements?
+9. What authentication and security requirements must be implemented?
+10. What performance thresholds should be established?
+11. What AI functionality, if any, should be included in the MVP?
+12. What is the final MVP feature list?
 
 ---
 
 ## Working this document with your agent
 
-_[Delegate: converting prose requirements into EARS shapes; checking that every `UC-*`, `BR-*`, and `FEAT-*` cited here exists in the document that owns it; finding functional requirements that appear in several use cases and should be lifted into section 5.2; drafting an oracle for a quality attribute you have stated only as an adjective._
+AI tools may be used to assist with converting project requirements into EARS-style requirements, checking references to other project documents, identifying duplicated requirements, and drafting testable quality attributes.
 
-_Keep human: the numbers. Every threshold in section 9 is a commitment somebody has to live with, and an agent will supply a plausible one (99.9% uptime, 200ms response) that nobody asked for and no one can meet. A number in this document either came from your client, from a measurement, or from a decision your team made deliberately and can defend._
+All generated requirements should be verified against the client meeting notes, project brief, existing application, and decisions made by the project team.
 
-_**The specific failure to watch for: invented precision.** A generated specification reads as authoritative at exactly the points where it is guessing. Check every number, every browser version, every retention period against something real, and put the ones you cannot verify in [OPEN-ISSUES.md](OPEN-ISSUES.md) instead of leaving a confident guess in the document your team will build from.]_
+Numerical thresholds, browser versions, retention periods, security commitments, and other precise requirements should not be added unless they are supported by the client, existing system, measurements, or an explicit decision made by the project team.
