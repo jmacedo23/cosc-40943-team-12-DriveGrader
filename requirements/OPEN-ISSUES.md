@@ -29,7 +29,8 @@ _[Send the shortlist to your client the day before. A client who has seen the qu
 
 | ID | Question | Why it matters | Who can answer | Raised |
 |---|---|---|---|---|
-| OI-1 | _[The question, phrased so it has a definite answer. Not "tell us about reporting" but "who is allowed to see another student's evaluation scores?"]_ | _[What we get wrong if we guess. Name the artifact or decision it blocks.]_ | _[Client, instructor, a specific user, or the team itself]_ | _[YYYY-MM-DD]_ |
+| OI-1 | Are using the OBDII scanners at all? | We will literaly have to come up with an entire new project if we guess wrong.  | Waiting on answer from Eric.  |25 sep 2026
+|
 
 ## Resolved
 
