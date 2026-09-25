@@ -29,7 +29,8 @@ _Within one use case, `PRE-1`, `POST-1`, and the step numbers are local and may 
 
 | Date | Version | Description | Author |
 |---|---|---|---|
-| _[YYYY-MM-DD]_ | 0.1 | Initial use cases derived from the vision and scope feature list | _[Name]_ |
+| _[2026-09-11]_ | 0.1 | Initial use cases derived from the vision and scope feature list | _[Kaylynn]_ |
+| _[2026-09-25]_ | 0.2 |	Rewrote Purpose/Scope and Use Case List against Client Meeting 1 (Eric Brown); replaced the template's placeholder example with real Drive Grader use cases (UC-SESS-start-drive-session, UC-DL40-conduct-graded-test, UC-HOUR-track-progress); dropped ANLZ/CONT/MON areas pending confirmation | _[Kaylynn]_ |
 
 ---
 
@@ -44,6 +45,8 @@ Drive Grader gives parents doing Texas Parent-Taught Driver Education a structur
 _[Which feature areas from the vision and scope are covered here. Name the `FEAT-*` entries. If a feature has no use cases yet, say so rather than leaving the reader to notice.]_
 
 Covers what the client confirmed as core: session tracking, real-time grading, the DL-40 digital grading mode, hour/requirement tracking, OBD-II vehicle data integration, and the existing admin panel (organizations, drive plans, maneuvers/score criteria). Explicitly out of scope for this version, per the client: AI evaluation/comparison of sessions ("AI is optional, not required — no specific use case identified"); instructional/how-to videos and real-time instructor fleet observation were in the original brief but were not raised or confirmed in the client meeting, so they are dropped from this list until confirmed. If they resurface, they belong under new area codes, not folded into the areas below.
+
+Open mapping issue: these areas are written directly from the client meeting; they have not yet been reconciled against a formal FEAT-* list in vision-and-scope.md. Confirm that mapping before treating this section list as final.
 
 ---
 
@@ -171,6 +174,149 @@ Sort criteria: criterion name, ascending.
 **Related Use Cases:** `UC-RUB-create-criterion`: Create a criterion.
 **Assumptions:** none
 **Open Issues:** none
+---
+
+##SESS — Drive Session Management
+**UC-SESS-start-drive-session:** The parent starts a drive session
+
+**UC ID and Name:** UC-SESS-start-drive-session: Start a drive session Created By: Team 12 Date Created: 2026-09-25 Primary Actor: parent (or instructor) Secondary Actors: OBD-II device (optional, real or simulated); GPS provider (real or simulated) Trigger: The parent creates a new drive and taps "Begin Drive." Description: The parent wants to start a named drive session for a specific driver profile, with GPS and optional OBD-II tracking running, so the drive can be graded in real time and reviewed afterward.
+
+**Preconditions:**
+
+PRE-1. The user is logged in and authenticated.
+PRE-2. A driver profile exists to associate with the session (e.g., "Test Driver").
+
+**Postconditions:**
+
+POST-1. A drive session record exists in "in progress" state, associated with the driver profile and a drive plan (e.g., "Basic Skills").
+POST-2. GPS route data (real or simulated) and, if selected, OBD-II data begin logging against the session.
+**
+Main Success Scenario:**
+
+The parent creates a new drive, naming the drive plan and selecting the driver profile.
+The system presents session settings (GPS source, OBD-II device) with sensible defaults.
+The parent accepts the defaults or selects a simulated GPS and/or simulated OBD-II device for testing, or a real device if in-vehicle.
+The parent taps "Begin Drive."
+The system starts logging GPS location, speed, and route, plus accelerometer data (hard braking, hard turns, G-forces).
+The system displays the live in-progress view so the parent can grade the drive (see UC-GRAD-log-infraction) while it runs.
+Use case ends (session continues until UC-SESS-end-drive-session).
+
+**Extensions:**
+
+3a. A real OBD-II device is selected but fails to pair:
+3a1. The system alerts the parent that the device is unavailable.
+3a2. The parent may retry pairing, switch to simulated/no OBD-II, or proceed without it.
+4a. GPS lock cannot be acquired (real GPS selected, no simulated fallback):
+4a1. The system alerts the parent and offers to retry or switch to simulated GPS.
+5a. The app is backgrounded and the OS suspends location/Bluetooth tracking mid-session:
+5a1. The system resumes tracking on foreground return and marks the gap as an interruption in the session log.
+
+**Priority:** High Frequency of Use: Every practice drive or road test, potentially several times per week per driver. Business Rules: BR-role-based-access
+
+**Associated Information:**
+
+Property name	Data type	Validation rule	Security or access concerns	Glossary reference
+driver profile	Reference	Required	Scoped to the parent's/org's account	Driver Profile
+drive plan	Reference	Required, defaults to a standard plan	n/a	Drive Plan
+gps source	Enum	real, simulated	n/a	GPS Source
+obd device	Enum/Reference	none, simulated, or paired real device	Device data is vehicle-derived, not personal	OBD-II Device
+
+**Failure handling:** session creation is all-or-nothing; a mid-session interruption is logged, not discarded — partial data captured before the interruption is retained.
+
+**Related Use Cases:** UC-GRAD-log-infraction; UC-SESS-end-drive-session; UC-HOUR-track-progress (a completed session should count toward hour requirements). Assumptions: The teen driver does not need their own login — the client confirmed the parent inputs all grading data themselves. Open Issues: Whether a PWA gives sufficient Bluetooth/GPS access for real OBD-II devices, or whether the team must move to a Capacitor-wrapped native build — the client flagged this as something the team needs to determine, not something already decided.
+---
+
+##DL40 — Digital DL-40 Grade Sheet
+B The instructor conducts a graded road test on the digital DL-40
+
+**UC ID and Name:** UC-DL40-conduct-graded-test: Conduct a graded road test Created By: Team 12 Date Created: 2026-09-25 Primary Actor: instructor/examiner (or parent, for a practice road test) Secondary Actors: driver, parent/guardian (signs at end) Trigger: The instructor selects a driver and taps to begin a DL-40 graded test. Description: The instructor wants to grade a road test electronically, tapping each required maneuver as it happens along the actual route driven — rather than hunting for it on a fixed-order paper form — so that a completed, signed grade sheet can be printed at the end. This is the feature the client identified as the reason Drive Grader exists.
+
+**Preconditions:**
+
+PRE-1. The instructor is logged in and authenticated.
+PRE-2. The DL-40 checklist has been reordered/configured to match the planned route (see UC-DL40-configure-checklist).
+PRE-3. A driver profile and parent/guardian record are available to attach to this test.
+
+**Postconditions:**
+
+POST-1. Every maneuver on the DL-40 checklist has a recorded grade outcome (pass/fail/notes) tied to a timestamp.
+POST-2. A completed DL-40 grade sheet exists with driver and parent/guardian signatures, ready to print.
+
+**Main Success Scenario:**
+
+The instructor selects the driver and the pre-configured, route-ordered DL-40 checklist.
+The instructor selects the driver and parent/guardian for signature capture.
+The instructor begins the test; the system displays the reordered checklist item by item.
+As each maneuver occurs (parking, merge, lane change, approach-to-corner, traffic signal, traffic sign, left turn, right turn, backing, etc.), the instructor taps the matching item and records the grade.
+The system timestamps and records each graded item against the session.
+The instructor completes the last maneuver on the checklist.
+The system presents the completed grade sheet for driver and parent/guardian signature (see UC-DL40-capture-signatures-and-print).
+Use case ends.
+
+**Extensions:**
+
+4a. A maneuver happens that isn't next on the reordered checklist (route deviated from plan):
+4a1. The instructor searches or scrolls to the correct item out of sequence and grades it there.
+4a2. The system still records the correct timestamp and item; checklist order is a navigation aid, not a constraint on grading order.
+4b. The instructor taps the wrong item by mistake:
+4b1. The instructor may undo/correct the most recent grading action before moving on.
+6a. The test is ended before every checklist item is graded (e.g., test aborted):
+6a1. The system marks ungraded items as "not administered" rather than as a pass or fail.
+6a2. The grade sheet indicates the test was incomplete.
+
+**Priority:** High Frequency of Use: Once per official road test; lower volume than practice-drive grading but the feature the client most wants to see working. Business Rules: BR-dl40-dps-approved (Texas DPS has approved electronic grading with a printed result), BR-role-based-access
+
+**Associated Information:**
+
+Property name	Data type	Validation rule	Security or access concerns	Glossary reference
+checklist order	Ordered list of references	Must contain every required DL-40 item exactly once	Instructor-configurable per route	DL-40 Checklist
+grade outcome	Enum	pass, fail, not administered	Part of an official test record	Grade Outcome
+signatures	Image/binary	Required before print (see UC-DL40-capture-signatures-and-print)	Signature data is sensitive; access scoped to the org	Signature
+
+**Failure handling: **grade sheet is built incrementally as each item is tapped; a crash mid-test does not lose already-graded items, but the session must be resumed or explicitly marked incomplete rather than silently left open.
+
+**Related Use Cases:** UC-DL40-configure-checklist (must happen first); UC-DL40-capture-signatures-and-print (happens last); UC-SESS-start-drive-session (a DL-40 test runs inside a session). Assumptions: The required maneuver set (three left turns, three right turns, two stop signs, two lights, two approach-to-corners, parallel park, reverse, etc.) is fixed by the state form and not something the app invents per route. Open Issues: None from the meeting — this is the most concretely specified feature the client described. Confirm the exact full DL-40 item list and required counts against the actual state form before building the checklist data model.
+---
+
+##HOUR — Hour & Requirement Tracking
+**UC-HOUR-track-progress: **The parent views progress toward required hours
+
+**UC ID and Name:** UC-HOUR-track-progress: Track progress toward required hours Created By: Team 12 Date Created: 2026-09-25 Primary Actor: parent Secondary Actors: none Trigger: The parent opens the driver's progress view. Description: The parent wants to see how many of the required hours their teen has completed — general driving, behind-the-wheel instruction, and observation — so they know how close the teen is to meeting Texas's 44-hour requirement before testing.
+
+**Preconditions:**
+
+PRE-1. The parent is logged in and authenticated.
+PRE-2. At least one completed drive session exists for the driver, or the driver has zero logged hours (still a valid, empty state).
+**
+Postconditions:**
+
+POST-1. The parent sees hours completed and hours remaining in each of the three categories (general, instruction, observation), against the configured target for each.
+
+**Main Success Scenario:**
+
+The parent opens the driver's progress view.
+The system totals logged session time by category (general/instruction/observation) for that driver.
+The system displays completed hours, remaining hours, and percentage complete per category, plus the combined total against the 44-hour requirement.
+Use case ends.
+
+**Extensions:**
+
+2a. A session's category was never set or is ambiguous:
+2a1. The system counts it toward "general" by default and flags it so the parent can recategorize it.
+
+**Priority:** High Frequency of Use: Frequent — checked after most sessions. Business Rules: BR-hour-requirements (30 hours general + 7 hours behind-the-wheel instruction + 7 hours observation = 44 total)
+
+**Associated Information:**
+
+Property name	Data type	Validation rule	Security or access concerns	Glossary reference
+session category	Enum	general, instruction, observation	n/a	Session Category
+target hours per category	Number	Configurable per BR-hour-requirements	Org-level, not driver-level, unless overridden	Hour Requirement
+
+**Failure handling:** this is a read-only aggregation; a failure to compute it should show a clear error rather than a wrong number, and never blocks the ability to start a new session.
+
+**Related Use Cases:** UC-SESS-end-drive-session (writes the hours this view reads); UC-HOUR-configure-requirements (sets the targets referenced here). Assumptions: None beyond BR-hour-requirements as stated by the client. Open Issues: The client suggested modeling target hours as configurable variables per category rather than hardcoding 30/7/7 — confirm whether that configurability is org-level, state-level, or both, since Texas-specific rules may not generalize if the app is ever used outside Texas.
+
+
 
 ---
 
