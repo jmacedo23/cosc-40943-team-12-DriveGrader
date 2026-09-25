@@ -731,21 +731,21 @@ Specific communication protocols and data formats are [TBD].
 
 **USE-mobile-first:** The application shall be designed primarily for use on mobile devices.
 
-**USE-responsive:** The application shall provide a responsive interface across supported screen sizes.
+**USE-responsive:** The application shall provide a responsive interface across all supported screen sizes.
 
-**USE-intuitive:** The application shall provide an intuitive interface that allows users to understand the primary functions without extensive training.
+**USE-intuitive:** At least **90% of representative test users** shall be able to complete the primary Drive Grader tasks without assistance.
 
-Specific usability metrics and accessibility requirements are [TBD].
+**Measurement:** Usability shall be measured through user testing. Test users shall be asked to perform primary tasks including starting a drive, logging an infraction, and reviewing a completed drive. The percentage of users who successfully complete the tasks without assistance shall be recorded. The target is at least 90%.
 
 ## 9.2 Performance
 
 **PER-drive-tracking:** While a drive is active, the system shall support real-time GPS tracking where required device access is available.
 
-**PER-infraction:** During an active drive, the system shall support recording infractions when selected by the user.
+**PER-infraction:** During an active drive, the system shall record a selected infraction within **2 seconds** of the user's selection.
 
-**PER-route:** The system shall support displaying the route associated with a drive session.
+**PER-route:** The system shall display the route associated with a drive session within **3 seconds** after the route data is requested.
 
-Specific response-time and sensor-update requirements are [TBD].
+**Measurement:** Performance shall be measured using timed functional tests on supported devices and network conditions. The response time for recording infractions and displaying recorded route information shall be measured from user action/request to completion. At least 90% of measured operations shall meet the specified response-time targets.
 
 ## 9.3 Security
 
@@ -755,23 +755,29 @@ Specific response-time and sensor-update requirements are [TBD].
 
 **SEC-driver-data:** The system shall associate driver information and drive data with the appropriate account or organization.
 
-Specific authentication, authorization, encryption, and audit requirements are [TBD].
+**SEC-authorization:** **100% of protected functions** shall require appropriate authorization before access is granted.
+
+**Measurement:** Security shall be measured through authorization testing. Each protected function shall be tested using authorized and unauthorized accounts. The test shall verify that authorized users can access permitted functions and unauthorized users are denied access. The target is 100% correct authorization behavior.
 
 ## 9.4 Safety
 
 **SAF-driving:** The system is intended to be used during driving instruction and evaluation.
 
-The application should minimize interaction requirements that could interfere with safe vehicle operation.
+**SAF-interaction:** The primary drive-tracking functionality shall require **0 unnecessary user interactions** while the vehicle is actively moving.
 
-Specific safety warnings, interaction restrictions, and requirements for use while driving are [TBD].
+**Measurement:** Safety shall be measured through a review and functional test of the active-drive interface. Testers shall verify that GPS tracking and other required drive-session functionality can operate without requiring unnecessary interaction from the driver while the vehicle is moving. Any interaction identified as unnecessary for the driving task shall be documented and corrected.
 
 ## 9.5 Availability
 
 **AVL-system:** The application shall be available through its supported deployment environment.
 
-The existing development workflow uses a staging environment with automated deployment through GitHub Actions.
+**AVL-uptime:** The system shall maintain at least **99% availability** during scheduled operating periods.
 
-Specific uptime requirements and maintenance windows are [TBD].
+**Measurement:** Availability shall be measured using application uptime monitoring. The percentage of scheduled operating time during which the application is accessible and functional shall be calculated as:
+
+`Availability = (Total scheduled time - downtime) / Total scheduled time × 100`
+
+The target is at least 99% availability.
 
 ## 9.6 Robustness
 
@@ -783,17 +789,19 @@ Specific uptime requirements and maintenance windows are [TBD].
 
 **ROB-external:** If an external service becomes unavailable, the system shall handle the unavailable service.
 
-Specific recovery behavior and offline requirements are [TBD].
+**ROB-failure-handling:** **100% of defined failure scenarios** shall be handled without causing the application to crash.
 
-## 9.7 Scalability, interoperability, maintainability
+**Measurement:** Robustness shall be measured by simulating defined failure conditions, including loss of GPS, loss of OBD2 connectivity, unavailable device APIs, and unavailable external services. Each scenario shall be tested to verify that the application remains usable for functionality that does not depend on the failed service. The target is 100% successful handling of defined failure scenarios.
 
-### Scalability
+## 9.7 Scalability
 
 **SCA-organizations:** The system shall support multiple organizations within the administration system.
 
-The expected number of organizations, users, concurrent drives, and stored sessions is [TBD].
+**SCA-concurrent-users:** The system shall support at least **100 concurrent users** while maintaining the application's required functionality.
 
-### Interoperability
+**Measurement:** Scalability shall be measured through load testing with at least 100 concurrent users performing representative application tasks. The system shall be monitored for errors, failed requests, and unacceptable performance degradation during the test.
+
+## 9.8 Interoperability
 
 **INT-obd2:** Where implemented, the system shall support communication with compatible OBD2 devices.
 
@@ -803,9 +811,11 @@ The expected number of organizations, users, concurrent drives, and stored sessi
 
 **INT-api:** The frontend and backend shall communicate through the Node.js API.
 
-Specific supported devices, browsers, operating systems, and integrations are [TBD].
+**INT-integrations:** **100% of supported external integrations** shall pass their defined integration tests.
 
-### Maintainability
+**Measurement:** Interoperability shall be measured through integration testing of supported interfaces, including the frontend-to-backend API, MySQL database connection, OpenStreetMap integration, and supported OBD2 devices where implemented. Each supported integration shall be tested for successful communication and data exchange. The target is 100% of defined integration tests passing.
+
+## 9.9 Maintainability
 
 **MNT-quasar:** The frontend shall use Quasar/Vue.
 
@@ -817,7 +827,10 @@ Specific supported devices, browsers, operating systems, and integrations are [T
 
 **MNT-documentation:** The project shall maintain documentation necessary for continued development and final project handoff.
 
-Specific coding standards, testing requirements, and documentation standards are [TBD].
+**MNT-documentation-completeness:** **100% of major system components** shall have sufficient documentation for continued development and maintenance.
+
+**Measurement:** Maintainability shall be measured through a documentation review before final project handoff. Major components shall include the frontend, backend API, database, deployment process, and major external integrations. Each component shall be checked for setup, configuration, and maintenance documentation. The target is 100% documentation coverage of major components.
+
 
 ---
 
