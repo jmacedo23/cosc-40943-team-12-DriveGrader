@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.1
+**Version:** 0.2
 
 ---
 
@@ -83,6 +83,7 @@ _The Source column is the defense. Every rule traces to a document or a person, 
 | Date | Version | Description | Author |
 |---|---|---|---|
 | 2026-09-11 | 0.1 | Initial rules drafted from initial client meeting | Kanta Endo|
+| 2026-09-25 | 0.2 | Added `BR-dl40-maneuver-deductions` | Kanta Endo |
 
 ---
 
@@ -115,3 +116,8 @@ _Format each rule as a bold identifier, the rule in one sentence, then its sourc
 _[That third entry is deliberate. Flag rules you are not sure about rather than dropping them; deciding whether something is a rule or a requirement is a conversation to have with your client, and it is worth having.]_
 
 _**Checklist:** Does every rule have a source? Could your client change it without asking you? Is it stated as one sentence about the business, rather than as a sentence about your software? Does any use case cite it, and if none does, is that correct?_
+
+### 2.2 Road Test Scoring
+
+- **`BR-dl40-maneuver-deductions`:** On a road test, each graded aspect of a maneuver (control, observation, position, signal) is rated Bad, Fair, or Good, and the rating deducts the points printed on the DL-40 for that aspect, with Good always deducting 0.
+  **Source:** Texas DPS form DL-40 (Rev. 10/15), "Record of Examination" page: the Bad / Fair / Good point columns for each maneuver and the "Road Test Deductions" box.
