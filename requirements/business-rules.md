@@ -86,6 +86,7 @@ _The Source column is the defense. Every rule traces to a document or a person, 
 | 2026-09-25 | 0.2 | Added `BR-dl40-maneuver-deductions` | Kanta Endo |
 | 2026-09-25 | 0.3 | Added rules from the 2026-09-11 client meeting (DL-40, road-test maneuvers, required hours); added section 3; replaced template placeholder 2.1 | Kanta Endo |
 
+
 ---
 
 ## 1. Introduction
@@ -120,6 +121,7 @@ _**Checklist:** Does every rule have a source? Could your client change it witho
   **Source:** Eric Brown (client), meeting 2026-09-11, §5, relaying an approval the client obtained from Texas DPS. **Needs confirmation:** the approval was reported verbally. Obtain it in writing (who at DPS approved it, when, and on what conditions), including whether the printout may list items in route order rather than the form's printed order.
 - **`BR-dl40-signatures`:** A completed DL-40 carries the signatures of the driver and of the parent or guardian.
   **Source:** Eric Brown (client), meeting 2026-09-11, §5, said while demoing the app. **Needs confirmation** against the DL-40 form itself: which signatures the form requires, and whether the examiner also signs.
+
 
 ### 2.2 Road Test Maneuvers
 
@@ -157,3 +159,4 @@ _[Items from the 2026-09-11 meeting that look like rules but fail the test "if w
 | Working MVP by end of semester; handoff around January. | Client, §8 | A project schedule constraint. | Vision and scope |
 | Quasar/Node.js PWA, possibly wrapped in Capacitor; OpenStreetMap for maps. | Client, §6 | Technology choices. | Specification (constraints) |
 | OBD2/CAN-bus data may provide turn-signal and brake use. | Client, §3 and §9 | An open technical question, not a policy. | Open issues |
+
