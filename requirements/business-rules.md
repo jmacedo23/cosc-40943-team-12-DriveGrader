@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.2
+**Version:** 0.3
 
 ---
 
@@ -84,6 +84,8 @@ _The Source column is the defense. Every rule traces to a document or a person, 
 |---|---|---|---|
 | 2026-09-11 | 0.1 | Initial rules drafted from initial client meeting | Kanta Endo|
 | 2026-09-25 | 0.2 | Added `BR-dl40-maneuver-deductions` | Kanta Endo |
+| 2026-09-25 | 0.3 | Added rules from the 2026-09-11 client meeting (DL-40, road-test maneuvers, required hours); added section 3; replaced template placeholder 2.1 | Kanta Endo |
+
 
 ---
 
@@ -96,28 +98,65 @@ This document collects the policies and regulations — primarily from the Texas
 ### 1.2 Scope
 
 Covers rules governing (a) the required driving-hour log for parent-taught driver education in Texas, and (b) the DL-40 road-test grade sheet. Does **not** cover the team's own technical or design decisions (backend database choice, UI polish, deployment platform, semester deadlines) — those are client/team constraints, not business rules, and belong in the specification instead. See the "Flagged as *not* a business rule" section below for the items pulled out of this file and why.
+
 ---
 
 ## 2. Rules
 
 _[Group rules under topic headings that fit your project. The Project Pulse headings are one example, not a required set: Course Administration, Teams and Assignment, Access and Ownership, Identity and Uniqueness, Editing and Locking, Deletion Integrity, Review and Submission._
 
-_Format each rule as a bold identifier, the rule in one sentence, then its source. Worked examples:]_
+_Format each rule as a bold identifier, the rule in one sentence, then its source.]_
 
-### 2.1 _[Topic]_
-
-- **`BR-active-weeks`:** A student may submit or edit a weekly activity report only during a week that the course section has marked active.
-  **Source:** course policy, confirmed by the instructor 2026-09-10.
-- **`BR-section-admin-only`:** Only a course admin may create or edit a course section, configure its active-weeks window (see `BR-active-weeks`), or assign a rubric to it.
-  **Source:** department policy on grade-bearing records.
-- **`BR-artifact-key-unique`:** Every artifact key is unique within a team and remains stable across edits to the artifact's content.
-  **Source:** team decision, 2026-09-10. **Candidate for the specification instead of this file**, since the team, not the client, would approve a change.
-
-_[That third entry is deliberate. Flag rules you are not sure about rather than dropping them; deciding whether something is a rule or a requirement is a conversation to have with your client, and it is worth having.]_
+_[Flag rules you are not sure about rather than dropping them; deciding whether something is a rule or a requirement is a conversation to have with your client, and it is worth having.]_
 
 _**Checklist:** Does every rule have a source? Could your client change it without asking you? Is it stated as one sentence about the business, rather than as a sentence about your software? Does any use case cite it, and if none does, is that correct?_
 
-### 2.2 Road Test Scoring
+### 2.1 Road Test Scoring
 
 - **`BR-dl40-maneuver-deductions`:** On a road test, each graded aspect of a maneuver (control, observation, position, signal) is rated Bad, Fair, or Good, and the rating deducts the points printed on the DL-40 for that aspect, with Good always deducting 0.
   **Source:** Texas DPS form DL-40 (Rev. 10/15), "Record of Examination" page: the Bad / Fair / Good point columns for each maneuver and the "Road Test Deductions" box.
+- **`BR-dl40-official-form`:** A Texas road test is graded on the Texas DPS form DL-40.
+  **Source:** Eric Brown (client), meeting 2026-09-11, [transcript](../docs/requirements/client-interview-2026-09-11.md) §4 and §5.
+- **`BR-dl40-electronic-grading`:** A DL-40 may be graded electronically during the road test, provided a completed DL-40 is printed afterward.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §5, relaying an approval the client obtained from Texas DPS. **Needs confirmation:** the approval was reported verbally. Obtain it in writing (who at DPS approved it, when, and on what conditions), including whether the printout may list items in route order rather than the form's printed order.
+- **`BR-dl40-signatures`:** A completed DL-40 carries the signatures of the driver and of the parent or guardian.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §5, said while demoing the app. **Needs confirmation** against the DL-40 form itself: which signatures the form requires, and whether the examiner also signs.
+
+
+### 2.2 Road Test Maneuvers
+
+- **`BR-road-test-route-maneuvers`:** A road-test route is built to include a required set of maneuvers: three left turns, three right turns, two stop signs, two traffic lights, two approach-to-corners, a parallel park, and a reverse.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §5. **Incomplete:** the client ended the list with "etc.", and did not say whether the counts are exact or minimums. Get the full list and its source document from the client.
+- **`BR-stop-at-stop-line`:** When stopping at a stop line, the driver must stop at the line, neither past it nor short of it.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4, as an item graded on the DL-40 (see `BR-dl40-official-form`).
+- **`BR-approach-to-corner`:** When approaching an intersection that has no stop sign, the driver must look in both directions.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4, as the DL-40 item "approach to corner" (see `BR-dl40-official-form`).
+
+### 2.3 Driver Education Hours
+
+- **`BR-ptde-required-hours`:** Before taking the road test, a Texas teen driver must log 7 hours of behind-the-wheel instruction, 7 hours of observation, and 30 hours of general driving.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4 and §9. **Expected to change** on the state's schedule, not ours; the client asked for the required hours per category to be configurable (§9). **Needs confirmation** against the state's published parent-taught requirements, since the meeting did not cover whether any category has further conditions (for example, time of day) or whether hours in one category count toward another.
+- **`BR-ptde-total-hours`:** The total required driving-education hours is the sum of the three category requirements in `BR-ptde-required-hours`, currently 7 + 7 + 30 = 44.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4 and §9 ("44 hours total").
+- **`BR-ptde-no-instructor-qualification`:** In Texas parent-taught driver education, the parent teaching the course is not required to hold an instructor qualification.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §1. **Needs confirmation** against the state program's eligibility rules for the parent instructor. This rule matters because it decides who may grade a drive.
+
+---
+
+## 3. Flagged as *not* a business rule
+
+_[Items from the 2026-09-11 meeting that look like rules but fail the test "if we asked to change it, who would approve?" Each is the client's or team's decision, so it belongs in the specification or vision document, where it can be negotiated.]_
+
+| Statement | Source | Why it is not a rule | Where it belongs |
+|---|---|---|---|
+| Nobody verifies the logged hours in practice. | Client, §4 | An observation about current practice, not a policy. It motivates tracking hours automatically. | Vision and scope (problem statement) |
+| Practice drives are graded on about ten categories (following distance, smooth braking, speed control, lane discipline, situational awareness, ...). | Client, §2 and §5 | The client's product design. The client can change the list without anyone's approval. | Specification (functional requirement) |
+| The DL-40 checklist can be reordered to match the route. | Client, §5 | A feature of the app. What DPS permits for the printout is covered by `BR-dl40-electronic-grading`. | Specification |
+| The required hours are configurable, with progress shown per category. | Client, §9 | How the app enforces `BR-ptde-required-hours`. | Specification |
+| The backend uses MySQL 8. | Client, §8 | A technical constraint set by the client. | Specification (constraints) |
+| The app should be intuitive; no specific design preference. | Client, §9 | A quality attribute. | Specification (quality attributes) |
+| AI integration is optional. | Client, §8 | A scope decision. | Vision and scope |
+| Working MVP by end of semester; handoff around January. | Client, §8 | A project schedule constraint. | Vision and scope |
+| Quasar/Node.js PWA, possibly wrapped in Capacitor; OpenStreetMap for maps. | Client, §6 | Technology choices. | Specification (constraints) |
+| OBD2/CAN-bus data may provide turn-signal and brake use. | Client, §3 and §9 | An open technical question, not a policy. | Open issues |
+
