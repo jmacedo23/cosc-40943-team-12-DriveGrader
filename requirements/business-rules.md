@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.3
+**Version:** 0.4
 
 ---
 
@@ -85,6 +85,7 @@ _The Source column is the defense. Every rule traces to a document or a person, 
 | 2026-09-11 | 0.1 | Initial rules drafted from initial client meeting | Kanta Endo|
 | 2026-09-25 | 0.2 | Added `BR-dl40-maneuver-deductions` | Kanta Endo |
 | 2026-09-25 | 0.3 | Added rules from the 2026-09-11 client meeting (DL-40, road-test maneuvers, required hours); added section 3; replaced template placeholder 2.1 | Kanta Endo |
+| 2026-09-30 | 0.4 | Completed DL-40 point values, pass/fail, and signatures from the client's Drive Tracker repo (`DL-40.pdf` and grading code); completed the route-maneuver list; added access rules from the 2026-09-29 meeting and the roster spec | Mameo007 |
 
 
 ---
@@ -97,7 +98,7 @@ This document collects the policies and regulations — primarily from the Texas
 
 ### 1.2 Scope
 
-Covers rules governing (a) the required driving-hour log for parent-taught driver education in Texas, and (b) the DL-40 road-test grade sheet. Does **not** cover the team's own technical or design decisions (backend database choice, UI polish, deployment platform, semester deadlines) — those are client/team constraints, not business rules, and belong in the specification instead. See the "Flagged as *not* a business rule" section below for the items pulled out of this file and why.
+Covers rules governing (a) the required driving-hour log for parent-taught driver education in Texas, (b) the DL-40 road-test grade sheet, including the points printed on the form and the pass/fail computation the client's app applies to that sheet, and (c) who may see a student and that student's drives. Does **not** cover the team's own technical or design decisions (backend database choice, UI polish, deployment platform, semester deadlines) — those are client/team constraints, not business rules, and belong in the specification instead. See the "Flagged as *not* a business rule" section below for the items pulled out of this file and why.
 
 ---
 
@@ -113,39 +114,88 @@ _**Checklist:** Does every rule have a source? Could your client change it witho
 
 ### 2.1 Road Test Scoring
 
-- **`BR-dl40-maneuver-deductions`:** On a road test, each graded aspect of a maneuver (control, observation, position, signal) is rated Bad, Fair, or Good, and the rating deducts the points printed on the DL-40 for that aspect, with Good always deducting 0.
-  **Source:** Texas DPS form DL-40 (Rev. 10/15), "Record of Examination" page: the Bad / Fair / Good point columns for each maneuver and the "Road Test Deductions" box.
 - **`BR-dl40-official-form`:** A Texas road test is graded on the Texas DPS form DL-40.
-  **Source:** Eric Brown (client), meeting 2026-09-11, [transcript](../docs/requirements/client-interview-2026-09-11.md) §4 and §5.
+  **Source:** Eric Brown (client), meeting 2026-09-11, [transcript](../docs/requirements/client-interview-2026-09-11.md) §4 and §5. The form in the client's Drive Tracker repo is `DL-40.pdf`, titled DL-40 (Rev. 10/15).
+- **`BR-dl40-maneuver-deductions`:** On a road test, each graded aspect of a maneuver (control, observation, position, signal) is rated Bad, Fair, or Good, and the rating deducts the points printed on the DL-40 for that aspect, with Good always deducting 0.
+  **Source:** Texas DPS form DL-40 (Rev. 10/15), "Record of Examination" page: the Bad / Fair / Good point columns for each maneuver and the "Road Test Deductions" box. Copy: client's Drive Tracker repo, `DL-40.pdf`.
+- **`BR-dl40-printed-points`:** The points deducted for Bad, Fair, and Good are the numbers printed in that maneuver's boxes on DL-40 (Rev. 10/15), as listed below (Bad / Fair / Good; a dash means the form has no box for that aspect).
+  **Source:** `DL-40.pdf` in the client's Drive Tracker repo, Record of Examination. The same numbers are the circle positions in `frontend/src/utils/dl40Generator.js` (`SCORE_POSITIONS`). **Do not copy the lookup seed:** `api/db/seeds/001_lookup_data.js` stores `[2, 1, 0]` for almost every aspect and `[3, 2, 0]` only for Use of Lanes / Control, which does not match this form.
+
+  | Maneuver | Control | Observation | Position | Signal |
+  |---|---|---|---|---|
+  | Start | 3 / 1 / 0 | 3 / 1 / 0 | — | 2 / 1 / 0 |
+  | Quick stop | 2 / 1 / 0 | 3 / 1 / 0 | — | — |
+  | Backing | 2 / 1 / 0 | 3 / 1 / 0 | 2 / 1 / 0 | — |
+  | Parallel park | 2 / 1 / 0 | 3 / 1 / 0 | 2 / 1 / 0 | 2 / 1 / 0 |
+  | Upshifting | 2 / 1 / 0 | — | 2 / 1 / 0 | — |
+  | Downshifting | 2 / 1 / 0 | — | 2 / 1 / 0 | — |
+  | Lane change | 3 / 2 / 0 | 4 / 2 / 0 | 3 / 2 / 0 | 3 / 2 / 0 |
+  | Merge | 3 / 2 / 0 | 4 / 2 / 0 | 3 / 2 / 0 | 3 / 2 / 0 |
+  | Use of lanes | 3 / 2 / 0 | 4 / 2 / 0 | 3 / 2 / 0 | 4 / 2 / 0 |
+  | Right of way | 2 / 1 / 0 | 4 / 2 / 0 | — | 4 / 2 / 0 |
+  | Posture | 2 / 1 / 0 | — | — | — |
+  | Approach to corner (1st and 2nd) | 2 / 1 / 0 | 4 / 2 / 0 | — | — |
+  | Traffic signal (1st and 2nd) | 2 / 1 / 0 | 3 / 2 / 0 | 2 / 1 / 0 | 2 / 1 / 0 |
+  | Traffic sign (1st and 2nd) | 2 / 1 / 0 | 3 / 2 / 0 | 2 / 1 / 0 | 2 / 1 / 0 |
+  | Left turn (1st, 2nd, and 3rd) | 2 / 1 / 0 | 3 / 2 / 0 | 2 / 1 / 0 | 2 / 1 / 0 |
+  | Right turn (1st, 2nd, and 3rd) | 2 / 1 / 0 | 3 / 2 / 0 | 2 / 1 / 0 | 2 / 1 / 0 |
+
+  The same page also prints a motorcycle off-street test and an air-brake pre-trip, with their own Bad/Good or Fail/Pass marks. Those are not part of the car road test in `BR-dl40-school-markings`.
+- **`BR-dl40-deduction-total`:** The road-test deduction total is the sum of the circled point values, and that total is written in the Road Test Deductions box for that exam.
+  **Source:** DL-40 (Rev. 10/15) "Road Test Deductions" box (1st, 2nd, and 3rd exam columns, split Off Street / On Street). The client's app sums grade scores into that box (`dl40Generator.js`, `totalDeductions`) and stores `100 - totalDeductions` as the session score (`api/src/services/SessionService.js`).
+- **`BR-dl40-pass-threshold`:** A road test passes when 100 minus the deduction total is at least 70, and a test with 31 or more deductions fails with result code XFDD.
+  **Source:** Client's Drive Tracker app: `SessionService.js` sets `finalScore = 100 - totalDeductions`, `passed = finalScore >= 70`, and `failReason` `XFDD` when it does not pass; `dl40Generator.js` comments XFDD as "fail-31+-deductions" and XP as pass. **Needs confirmation:** `DL-40.pdf` prints the point columns and the deductions box, and it does not print this 70-point line or the result-code legend. Confirm against the DPS scoring instructions before treating 70 / XFDD as the state's rule rather than the client's encoding of it.
+- **`BR-dl40-instant-fail`:** A speed violation fails the road test immediately with result code XFVL, and a dangerous action fails it immediately with result code XFDA, whatever the deduction total is.
+  **Source:** Client's Drive Tracker app: grading screen labels "Speed Violation — Instant Fail" and "Dangerous Action — Instant Fail" (`frontend/src/pages/GradingPage.vue`), and the API accepts only `XFVL` and `XFDA` as instant-fail reasons (`api/src/routes/sessions.js`). `dl40Generator.js` comments XFVL as "fail-speeding" and XFDA as "fail-dangerous-act". **Needs confirmation** the same way as `BR-dl40-pass-threshold`: these codes are not printed on the DL-40 sheet in the repo.
+- **`BR-dl40-ungraded-maneuver`:** A maneuver with no deduction is recorded as zeros and lined through; if any aspect of that maneuver has a deduction, a zero on another aspect of the same maneuver is not kept.
+  **Source:** Client's Drive Tracker app, `SessionService.js` (end-of-session fill) and `dl40Generator.js` (`drawZeroLine`). **Needs confirmation** with the client that examiners mark the paper DL-40 this way, and that it is not only how the app fills blank rows.
 - **`BR-dl40-electronic-grading`:** A DL-40 may be graded electronically during the road test, provided a completed DL-40 is printed afterward.
   **Source:** Eric Brown (client), meeting 2026-09-11, §5, relaying an approval the client obtained from Texas DPS. **Needs confirmation:** the approval was reported verbally. Obtain it in writing (who at DPS approved it, when, and on what conditions), including whether the printout may list items in route order rather than the form's printed order.
-- **`BR-dl40-signatures`:** A completed DL-40 carries the signatures of the driver and of the parent or guardian.
-  **Source:** Eric Brown (client), meeting 2026-09-11, §5, said while demoing the app. **Needs confirmation** against the DL-40 form itself: which signatures the form requires, and whether the examiner also signs.
-
+- **`BR-dl40-signatures`:** A completed DL-40 for a minor carries the parent or guardian's signature and driver license number, and the applicant's signature on the record of examination.
+  **Source:** DL-40 (Rev. 10/15) page 1, "Signature of Parent or Guardian" and "Driver License No."; page 2, the APPLICANT column. Eric Brown, meeting 2026-09-11, §5, said the app selects the driver and parent/guardian with signatures. The form also has an examiner column and a "Notary Public or Authorized Officer" line. The app captures the applicant signature and an optional parent block (`GradingPage.vue`) and does not capture a notary. **Needs confirmation:** whether a parent-taught sheet must be notarized, and whether the examiner signs separately from the parent.
+- **`BR-dl40-minor-statement`:** On the parent or guardian's sworn statement, the minor is identified as son, daughter, or ward, and the statement authorizes a license class.
+  **Source:** DL-40 (Rev. 10/15) page 1 sworn statement. The app requires relationship, driver license number, and signature together when any part of the parent block is used (`api/src/routes/sessions.js`). The parent block itself is optional in the app. **Needs confirmation** that a practice sheet may omit the sworn statement, since the form prints it for licensing a minor.
+- **`BR-dl40-school-markings`:** The client's current car-test printout marks Class C, checks Driver Education Laboratory and not Classroom or Motorcycle, writes B on the REMOVED restriction line, and crosses out the motorcycle off-street test, identifying control, air-brake pre-trip, start, quick stop, upshifting, and downshifting.
+  **Source:** `frontend/src/utils/dl40Generator.js`. The restriction code is commented "fixed B per school process," and the crossed-out blocks are commented "Sections not applicable to a standard car driving test." **Needs confirmation** with Eric. The form itself offers Class A, B, C, and M and prints those sections, so this is his filing practice until he says it is a DPS rule. See also `BR-dl40-printed-points`: start, quick stop, upshifting, and downshifting still have printed point values.
 
 ### 2.2 Road Test Maneuvers
 
-- **`BR-road-test-route-maneuvers`:** A road-test route is built to include a required set of maneuvers: three left turns, three right turns, two stop signs, two traffic lights, two approach-to-corners, a parallel park, and a reverse.
-  **Source:** Eric Brown (client), meeting 2026-09-11, §5. **Incomplete:** the client ended the list with "etc.", and did not say whether the counts are exact or minimums. Get the full list and its source document from the client.
+- **`BR-road-test-route-maneuvers`:** A road-test route is built to include three left turns, three right turns, two stop signs, two traffic lights, two approaches to a corner, a parallel park, and a reverse, and the DL-40 on-street test also grades lane change, merge, use of lanes, right of way, and posture.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §5, for the counted set (he ended the list with "etc." and said "a reverse"). DL-40 (Rev. 10/15) Record of Examination for the printed names: three Left Turns, three Right Turns, two Traffic Signs, two Traffic Signals, two Approaches to Corner, Parallel Park, and Backing, plus Lane Change, Merge, Use of Lanes, Right of Way, and Posture. His "stop signs" and "traffic lights" are the form's Traffic Signs and Traffic Signals, and his "reverse" is the form's Backing. The form prints those counts as exact boxes, which matches the numbers he gave. **Needs confirmation** whether a route must contain exactly those counts or at least those counts. The seed maneuver list (`001_lookup_data.js`) has no Backing row; the PDF generator refers to backing as maneuver 22.
 - **`BR-stop-at-stop-line`:** When stopping at a stop line, the driver must stop at the line, neither past it nor short of it.
-  **Source:** Eric Brown (client), meeting 2026-09-11, §4, as an item graded on the DL-40 (see `BR-dl40-official-form`).
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4, as an item graded on the DL-40 (see `BR-dl40-official-form`). The form scores Traffic Signs as control, observation, position, and signal (`BR-dl40-printed-points`); it does not print this stop-line sentence.
 - **`BR-approach-to-corner`:** When approaching an intersection that has no stop sign, the driver must look in both directions.
-  **Source:** Eric Brown (client), meeting 2026-09-11, §4, as the DL-40 item "approach to corner" (see `BR-dl40-official-form`).
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4, as the DL-40 item "approach to corner" (see `BR-dl40-official-form`). The form scores each approach as control and observation only (`BR-dl40-printed-points`).
 
 ### 2.3 Driver Education Hours
 
 - **`BR-ptde-required-hours`:** Before taking the road test, a Texas teen driver must log 7 hours of behind-the-wheel instruction, 7 hours of observation, and 30 hours of general driving.
-  **Source:** Eric Brown (client), meeting 2026-09-11, §4 and §9. **Expected to change** on the state's schedule, not ours; the client asked for the required hours per category to be configurable (§9). **Needs confirmation** against the state's published parent-taught requirements, since the meeting did not cover whether any category has further conditions (for example, time of day) or whether hours in one category count toward another.
+  **Source:** Eric Brown (client), meeting 2026-09-11, §4 and §9. **Expected to change** on the state's schedule, not ours; the client asked for the required hours per category to be configurable (§9). **Needs confirmation** against the state's published parent-taught requirements, since the meeting did not cover whether any category has further conditions (for example, time of day) or whether hours in one category count toward another. The Drive Tracker repo does not encode these hour totals.
 - **`BR-ptde-total-hours`:** The total required driving-education hours is the sum of the three category requirements in `BR-ptde-required-hours`, currently 7 + 7 + 30 = 44.
   **Source:** Eric Brown (client), meeting 2026-09-11, §4 and §9 ("44 hours total").
 - **`BR-ptde-no-instructor-qualification`:** In Texas parent-taught driver education, the parent teaching the course is not required to hold an instructor qualification.
   **Source:** Eric Brown (client), meeting 2026-09-11, §1. **Needs confirmation** against the state program's eligibility rules for the parent instructor. This rule matters because it decides who may grade a drive.
 
+### 2.4 Who May See a Student
+
+- **`BR-parent-own-students`:** A parent may see and manage only their own students and those students' drives.
+  **Source:** Eric Brown (client), meeting 2026-09-29, [notes](../docs/requirements/client-interview-2026-09-29.md), "Data separation: parents see only their own kids' drives." The same boundary is an approved constraint in the client's repo, `_bmad-output/implementation-artifacts/spec-managed-student-rosters.md` (2026-08-28): "Parents can access only their personal roster," enforced in `api/src/services/RosterService.js`.
+- **`BR-parent-multiple-students`:** A parent may have more than one student driver.
+  **Source:** Eric Brown (client), meeting 2026-09-29: "Support multiple students (siblings/twins are common)."
+- **`BR-org-roster`:** An examiner or instructor may access the student roster of their own organization, and not another organization's roster.
+  **Source:** Client's approved roster spec, `spec-managed-student-rosters.md`: "examiners and instructors can access the full roster for their JWT organization," and "Never: expose global student search across organizations." Enforced in `RosterService.scopeFor`. The 2026-09-29 meeting stated the parent half (`BR-parent-own-students`) and did not restate this organization half.
+- **`BR-platform-admin-settings`:** Only a user marked as platform administrator may open SaaS administration, and a platform administrator may access a roster outside their own organization.
+  **Source:** Eric Brown (client), meeting 2026-09-29: the SaaS settings area "should only appear for admins via a platform admin switch on the user profile." Cross-scope roster access is the roster spec's "platform administrators retain authorized cross-scope access."
+- **`BR-drive-active-student`:** A drive may be started only for an active student on the grader's own roster.
+  **Source:** Client's approved roster spec: "Start Drive will only accept an active roster student," and archived or out-of-scope students are rejected. **Needs confirmation** that this is the client's operating policy for every drive, including a parent's practice drive, and not only the roster feature's acceptance criteria.
+- **`BR-roster-no-hard-delete`:** A student who already has a recorded drive is not permanently deleted; the roster entry is archived so the drive history remains.
+  **Source:** Client's approved roster spec: "Never: hard-delete roster entries referenced by sessions," with archive and restore instead. **Needs confirmation** with Eric that drive records must be retained, and for how long. The spec does not state a retention period.
+
 ---
 
 ## 3. Flagged as *not* a business rule
 
-_[Items from the 2026-09-11 meeting that look like rules but fail the test "if we asked to change it, who would approve?" Each is the client's or team's decision, so it belongs in the specification or vision document, where it can be negotiated.]_
+_[Items from the 2026-09-11 and 2026-09-29 meetings, and from the client's repo, that look like rules but fail the test "if we asked to change it, who would approve?" Each is the client's or team's decision, so it belongs in the specification or vision document, where it can be negotiated. A formula or access limit that the client or the DL-40 already fixed is in section 2 instead.]_
 
 | Statement | Source | Why it is not a rule | Where it belongs |
 |---|---|---|---|
@@ -158,5 +208,17 @@ _[Items from the 2026-09-11 meeting that look like rules but fail the test "if w
 | AI integration is optional. | Client, §8 | A scope decision. | Vision and scope |
 | Working MVP by end of semester; handoff around January. | Client, §8 | A project schedule constraint. | Vision and scope |
 | Quasar/Node.js PWA, possibly wrapped in Capacitor; OpenStreetMap for maps. | Client, §6 | Technology choices. | Specification (constraints) |
-| OBD2/CAN-bus data may provide turn-signal and brake use. | Client, §3 and §9 | An open technical question, not a policy. | Open issues |
+| OBD2/CAN-bus data may provide turn-signal and brake use. | Client, 2026-09-11 §3 and §9; 2026-09-29, the tested adapter does not capture CAN and "track what you can" | An open technical question, not a policy. | Open issues |
+| OBD connection is not required; show connected / not connected. | Client, 2026-09-29 follow-up email | A product behavior. | Specification |
+| Live parent viewing of a lesson ("like tracking an Uber"). | Client, 2026-09-29 | A product idea. Who may see a drive that already happened is `BR-parent-own-students`. | Vision and scope |
+| Scheduling of upcoming drives, and a history of completed ones. | Client, 2026-09-29 | A feature request. | Specification |
+| Reporting ("Justin drove on these dates for this long") and filtering by date, student, or instructor. | Client, 2026-09-29 | No report exists yet; the client asked for one. | Specification |
+| Gating a profile to N students is the business model. | Client, 2026-09-29 follow-up email | He did not set N, and the repo does not enforce a student cap. Not a rule until he names the limit. | Open issues |
+| More session types: highway, city, night, parallel parking. | Client, 2026-09-29 | A product idea. Night hours are not part of `BR-ptde-required-hours` until the state requirement is confirmed. | Specification |
+| SaaS admin is a settings screen behind the platform-admin switch. | Client, 2026-09-29 | How the app presents `BR-platform-admin-settings`. | Specification |
+| Expert mode hides descriptions; learning mode is for explanatory videos. | Client, 2026-09-29 | A display preference. | Specification |
+| API-down banner, internet indicator, staging/dev banner with no banner in production, version 1.0.6 patch bumps, "What's New," aerial map layer, dark mode, PWA install prompts. | Client, 2026-09-29 | Quality and release mechanics. | Specification |
+| Push to `STG`, not `main`; Quasar/Node deploy; redesign the thrown-together UI freely. | Client, 2026-09-29 | Engineering and design process. | Specification (constraints) |
+| Official DL-40 sessions allow only examiner and instructor in the seed data. | Drive Tracker `api/db/seeds/001_lookup_data.js` | Conflicts with the client saying a parent uses the same app to grade a DL-40 (2026-09-11 §5). The seed is not a stated policy. | Open issues |
+| Lookup-seed deduction values (`[2, 1, 0]`, with one `[3, 2, 0]` exception). | Drive Tracker `001_lookup_data.js` | They disagree with the form. The points to reproduce are `BR-dl40-printed-points`. | Specification (defect against the rule) |
 
