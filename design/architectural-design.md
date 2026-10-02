@@ -124,11 +124,11 @@ _[Three to five bullets: the few moves that shape everything else. arc42 suggest
 
 _Each bullet is one sentence, and it cites what explains it: the key decision in section 9.2 where one exists, and otherwise the quality goal and the building block in section 5 it shapes. Keep it short; the reasoning lives in section 9. A bullet that cites nothing is either not load-bearing, or it is a decision you have not written down yet._
 
-_Example:]_
-
-- _**One deployable with one managed database** (`KD-deployment-shape`), because nobody on the cafeteria side can operate infrastructure (quality goal 3)._
-- _**Payment is the only component that talks to the Payroll System** (section 5.2), so payroll data crosses the trust boundary in exactly one place (quality goal 1)._
-- _**Divided by use case area**, Ordering, Menu, and Delivery, each owning its own rules, so a menu change never touches ordering code (quality goal 3, `MNT-menu-self-service`)._
+- **One repository, the existing front end and API, and one MySQL database** (`KD-deployment-shape`), because the client's developers already run that shape and inherit it in January 2027 (`CO-existing-application`, `MNT-existing`).
+- **The phone client is the only component that reads GPS, the accelerometer, and the OBD-II adapter** (section 5.2), so a missing adapter still leaves the drive usable (`ROB-obd2`) and recording continues while the car is moving (`SAF-interaction`).
+- **Rules are split by use case area** — `SESS`, `GRAD`, `DL40`, `HOUR`, `OBD`, and `ADMIN` (section 5.2) — so a change to grading criteria or the DL-40 stays inside its own area (`MNT-existing`).
+- **The phone client draws the route on OpenStreetMap, and the API stores the recorded route** (section 5.2, `CO-mapping`, `INT-mapping`).
+- **Staging updates go out through the client's existing GitHub Actions deploy from the `STG` branch** (`CO-github-actions`), which is the workflow the inheriting developers already operate (`MNT-documentation`).
 
 ## 5. Building Block View
 
