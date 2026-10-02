@@ -197,37 +197,47 @@ _Under the diagram, one or two sentences on **why the system is divided this way
 
 _Three containers is a normal answer. If you have more than five, check each one against section 9: which decision, driven by which quality attribute, requires it to run separately?_
 
-_Example:]_
-
 ```mermaid
 C4Container
-    title Container Diagram: Cafeteria Ordering System
+    title Container Diagram: Drive Grader
 
-    Person(patron, "Patron", "Employee ordering a meal")
-    Person(staff, "Cafeteria Staff", "Prepares and delivers orders")
-    Person(menu, "Menu Manager", "Maintains the daily menu")
+    Person(parent, "Parent / Guardian", "Supervises practice drives")
+    Person(student, "Student", "The driver whose sessions are recorded")
+    Person(instructor, "Instructor", "Runs lesson drives for the school")
+    Person(examiner, "Examiner", "Grades the road test")
+    Person(orgAdmin, "Organization Administrator", "Manages an organization's plans and settings")
+    Person(sysAdmin, "System Administrator", "Manages accounts and organizations")
 
-    System_Boundary(cos, "Cafeteria Ordering System") {
-        Container(web, "Web Front End", "Vue.js", "Ordering, menu, and fulfilment screens in the browser")
-        Container(app, "Application", "Java / Spring Boot", "Every business rule; serves the front end")
-        ContainerDb(db, "Database", "PostgreSQL", "Orders, menus, and delivery slots")
+    System_Boundary(dg, "Drive Grader") {
+        Container(web, "Phone client", "Quasar / Vue, PWA", "Drive, grading, DL-40, hours, and admin screens on the phone")
+        Container(api, "API", "Node.js / Fastify", "Accounts, sessions, grades, plans, and the stored route")
+        ContainerDb(db, "Database", "MySQL 8", "Users, organizations, sessions, grades, plans, and maneuvers")
     }
 
-    System_Ext(payroll, "Payroll System", "Deducts meal payments from pay")
-    System_Ext(sso, "Corporate Sign-On", "Authenticates employees")
-    System_Ext(email, "Corporate Email", "Order confirmations")
+    System_Ext(sensors, "Mobile device sensors", "GPS and accelerometer on the user's phone")
+    System_Ext(obd, "OBD-II adapter", "Vehicle data over Bluetooth")
+    System_Ext(osm, "OpenStreetMap", "Map tiles for the driven route")
+    System_Ext(reservations, "Reservation system", "An organization's bookings and student roster")
+    System_Ext(ai, "AI service", "Optional drive analysis")
 
-    Rel(patron, web, "Orders meals", "HTTPS")
-    Rel(staff, web, "Fulfils orders", "HTTPS")
-    Rel(menu, web, "Edits menu", "HTTPS")
-    Rel(web, app, "Calls", "JSON/HTTPS")
-    Rel(app, db, "Reads and writes", "JDBC")
-    Rel(app, payroll, "Submits payment requests", "not yet known: RISK-payroll-api-unavailable")
-    Rel(app, sso, "Verifies identity", "OpenID Connect")
-    Rel(app, email, "Sends confirmations", "SMTP")
+    Rel(parent, web, "Starts drives, logs infractions, reviews results", "HTTPS")
+    Rel(student, web, "Views results", "HTTPS")
+    Rel(instructor, web, "Runs lesson drives", "HTTPS")
+    Rel(examiner, web, "Grades the road test", "HTTPS")
+    Rel(orgAdmin, web, "Manages drive plans and settings", "HTTPS")
+    Rel(sysAdmin, web, "Manages accounts and organizations", "HTTPS")
+    Rel(web, api, "Calls", "JSON/HTTPS")
+    Rel(api, db, "Reads and writes", "MySQL")
+    Rel(web, sensors, "Reads location and motion", "Geolocation API, DeviceMotion")
+    Rel(web, obd, "Reads vehicle data", "Bluetooth LE")
+    Rel(web, osm, "Loads map tiles", "HTTPS")
+    Rel(api, reservations, "Reads appointments and students", "JSON/HTTPS")
+    Rel(api, ai, "May request drive analysis", "not yet chosen")
 ```
 
-_The system is one application and one database because nobody on the cafeteria side can operate more (`KD-deployment-shape`). The front end is a separate container only because it runs in the browser; it ships inside the application's package._
+Drive Grader ships as the client's existing phone client, API, and one MySQL database, in one repository (`KD-deployment-shape`, section 4). The client's developers already run that shape and inherit it in January 2027 (`CO-existing-application`, `MNT-existing`). The phone client is its own container because it runs on the phone. The API is its own container because it stores the recorded route and is the only container that opens MySQL (`SI-NODE`, `SI-MYSQL`, `DE-mysql`).
+
+The phone client is the only container that reads the mobile device sensors and the OBD-II adapter, and the only one that draws the route on OpenStreetMap (section 3, `SI-GPS`, `SI-ACCELEROMETER`, `SI-OBD2`, `SI-OSM`). The API is the only container that reads the reservation system. The AI service is the optional box from section 3; the proof of concept does not call it yet (`SI-AI`, `DE-ai`). A Capacitor build wraps that same phone client when the browser cannot reach the adapter (`CO-capacitor`, `SI-CAPACITOR`). OBD Home is the same adapter during testing (`SI-OBDHOME`), so it is not a separate box.
 
 ### 5.2 Use case areas and components
 
@@ -237,16 +247,24 @@ _**Responsibility** is one sentence, what the component owns, not how it works. 
 
 _Project Pulse's component tables also name each component's package. They can because its code exists; yours does not yet, so a row here is a name and a responsibility, and packages come with the design-of-record in week 7._
 
-_Example:]_
+Areas are the ten in [use cases](../requirements/use-cases.md) section 3. Section 4 names `SESS`, `GRAD`, `DL40`, `HOUR`, `OBD`, and `ADMIN`. Use cases v0.3 also lists `ACCT`, `SYNC`, `MON`, and `SETT`, so each of those has a row here too.
 
 | Use case area | Component | Responsibility | Depends on | Status |
 |---|---|---|---|---|
-| _`ORD`_ | _Ordering_ | _Owns an order from placement to cancellation, and the cut-off rules_ | _Menu, Payment, Identity_ | _provisional_ |
-| _`MNU`_ | _Menu_ | _Owns daily menus and item availability_ | _Identity_ | _provisional_ |
-| _`DEL`_ | _Delivery_ | _Owns delivery slots and the staff's fulfilment queue_ | _Ordering, Notification_ | _provisional_ |
-| _(cross-cutting)_ | _Payment_ | _The only component that talks to the Payroll System_ | _Payroll System_ | _provisional_ |
-| _(cross-cutting)_ | _Identity_ | _Maps a signed-on employee to a role_ | _Corporate Sign-On_ | _provisional_ |
-| _(cross-cutting)_ | _Notification_ | _Sends every email the system sends_ | _Corporate Email_ | _provisional_ |
+| `ACCT` | Accounts | Owns sign-in, account creation, and password reset | — | provisional |
+| `SESS` | Drive sessions | Owns a drive from the moment it starts until it is saved, including the route stored by the API and the summary reviewed afterward | Phone client, Accounts | provisional |
+| `GRAD` | Infraction grading | Owns each infraction logged during a drive and the log shown when that drive is reviewed | Drive sessions, Organization administration, Accounts | provisional |
+| `DL40` | DL-40 grade sheet | Owns the route-ordered checklist, the graded road test, the suggested route, the captured signatures, and the printable grade sheet | Drive sessions, Organization administration, Phone client, Accounts | provisional |
+| `HOUR` | Training hours | Owns hours recorded from completed drives and the progress shown against the configured targets | Drive sessions, Accounts | provisional |
+| `OBD` | Vehicle data | Owns the vehicle readings attached to a drive and the adapter's connection status; a missing adapter still leaves the drive usable | Phone client, Drive sessions | provisional |
+| `SYNC` | Offline sync | Owns session data recorded without a connection and the upload of that queue once the phone can reach the API | Drive sessions, Phone client | provisional |
+| `ADMIN` | Organization administration | Owns an organization's drive plans, maneuvers, score criteria, student limit, and reservation-system settings | Accounts, Reservation system | provisional |
+| `MON` | Live observation | Owns an optional live view of an in-progress drive | Drive sessions | provisional |
+| `SETT` | App settings | Owns display preferences on the phone, including dark mode | Phone client | provisional |
+| (cross-cutting) | Phone client | The only component that reads GPS, the accelerometer, and the OBD-II adapter, and the only one that draws the route on OpenStreetMap | Mobile device sensors, OBD-II adapter, OpenStreetMap | provisional |
+| (cross-cutting) | Drive analysis | Owns the optional request for analysis of a recorded drive | AI service | provisional |
+
+Every row is provisional at Checkpoint 1. Mobile device sensors, the OBD-II adapter, and OpenStreetMap appear only on the Phone client row, which is the split section 4 describes (`ROB-obd2`, `SAF-interaction`). The reservation system appears only on Organization administration. The AI service appears only on Drive analysis. Drive sessions stores the route the phone client records. Training hours is specified under `HOUR` and still has to be added in the proof of concept.
 
 _[Check before Checkpoint 1: every area in your use case file appears in the first column, and every external system in section 3 appears in some Depends on cell.]_
 
