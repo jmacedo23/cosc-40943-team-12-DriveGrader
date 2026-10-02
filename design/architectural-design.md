@@ -116,6 +116,59 @@ C4Context
     Rel(cos, email, "Sends confirmations")
 ```
 
+Drive Grader is one system. This diagram is the business context: the people who use it, and the systems outside it. Protocols go on the container diagram in section 5.1. The trust boundary is named in section 8.1.
+
+```mermaid
+C4Context
+    title System Context: Drive Grader
+
+    Person(parent, "Parent / Guardian", "Supervises practice drives")
+    Person(student, "Student", "The driver whose sessions are recorded")
+    Person(instructor, "Instructor", "Runs lesson drives for the school")
+    Person(examiner, "Examiner", "Grades the road test")
+    Person(orgAdmin, "Organization Administrator", "Manages an organization's plans and settings")
+    Person(sysAdmin, "System Administrator", "Manages accounts and organizations")
+
+    System(dg, "Drive Grader", "Records, grades, and reviews driver-training sessions")
+
+    System_Ext(sensors, "Mobile device sensors", "GPS and accelerometer on the user's phone")
+    System_Ext(obd, "OBD-II adapter", "Vehicle data over Bluetooth")
+    System_Ext(osm, "OpenStreetMap", "Map tiles for the driven route")
+    System_Ext(reservations, "Reservation system", "An organization's bookings and student roster")
+    System_Ext(ai, "AI service", "Optional drive analysis")
+
+    Rel(parent, dg, "Starts drives, logs infractions, reviews results")
+    Rel(student, dg, "Views results")
+    Rel(instructor, dg, "Runs lesson drives")
+    Rel(examiner, dg, "Grades the road test")
+    Rel(orgAdmin, dg, "Manages drive plans and settings")
+    Rel(sysAdmin, dg, "Manages accounts and organizations")
+    Rel(sensors, dg, "Supplies location and motion")
+    Rel(obd, dg, "Supplies vehicle data")
+    Rel(dg, osm, "Loads map tiles")
+    Rel(dg, reservations, "Reads appointments and students")
+    Rel(dg, ai, "May request drive analysis")
+```
+
+The box is the client's proof of concept: a Quasar app, a Node.js API, and MySQL, continued rather than replaced. Instructor and examiner are separate roles in that application. Organization and account administration is a platform-admin flag on a user; anyone who can grade can edit drive plans.
+
+Each outside box has an identifier in the specification:
+
+| Box | Identifiers |
+|---|---|
+| Mobile device sensors | `SI-GPS`, `SI-ACCELEROMETER`, `AS-device-gps`, `AS-device-accelerometer` |
+| OBD-II adapter | `SI-OBD2`, `SI-OBD2-BLUETOOTH`, `SI-OBD2-DATA`, `DE-obd2-hardware`, `DE-obd2-data`, `SI-OBDHOME`, `DE-obd-home` |
+| OpenStreetMap | `SI-OSM`, `DE-openstreetmap` |
+| Reservation system | none yet — closest is `FR-ADMIN-integrations` |
+| AI service | `SI-AI`, `DE-ai` |
+
+`SI-OBDHOME` and `DE-obd-home` are the same adapters the application connects to over Bluetooth while testing vehicle data. The proof of concept loads OpenStreetMap tiles on the live-drive and session-review maps. It already reads appointments and students from a reservation API configured per organization. The specification has no `SI-*` or `DE-*` for that system yet; `FR-ADMIN-integrations` is the requirement that covers integration settings, and vision and scope section 4.3 leaves further reservation work out of the MVP. `SI-AI` and `DE-ai` name an optional service. The proof of concept has no call to one.
+
+`SI-NODE`, `SI-QUASAR`, `SI-MYSQL`, `SI-CAPACITOR`, `DE-mysql`, and `DE-capacitor` name parts of Drive Grader. They stay inside the one box and are drawn in the container view (section 5). `SI-GITHUB`, `SI-GITHUB-ACTIONS`, `DE-github`, and `DE-github-actions` are how the team stores and deploys the code. Section 8.5 of the specification names no `CI-*` interface. The channels it describes are the API inside Drive Grader, Bluetooth to the adapter, OpenStreetMap, the optional AI service, and Tailscale on the team's development network.
+
+The examiner prints the DL-40 from a PDF the application generates on the device. The phone camera and Cloudflare are future items in vision and scope section 4.1, and the specification gives them no interface.
+
+
 ## 4. Solution Strategy
 
 _Due: Checkpoint 1._
