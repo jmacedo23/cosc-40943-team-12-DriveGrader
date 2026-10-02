@@ -65,11 +65,18 @@ The stakeholder profiles are defined in section 3.1 of the Vision and Scope (../
 
 ## 2. Architecture Constraints
 
-_Due: Checkpoint 1._
+The architecture honors the operating environment in section 2.3 of the [specification](../requirements/software-requirements-specification.md) and the design constraints in section 2.4. Identifiers are cited here and defined there.
 
-_[The constraints the architecture has to honor. They are already written as `CO-*` in section 2.4 of your specification, and `OE-*` in section 2.3; **list the identifiers here, do not restate them.** Add one sentence only where a constraint narrows an architectural choice in a way that is not obvious from its text._
+**Operating environment:** `OE-responsive-web`, `OE-mobile-access`, `OE-pwa`.
 
-_Your technology stack is a constraint only if something external fixes it: the client's IT department, an existing system, or the person who maintains this after you graduate. A stack your team chose is a decision, and it goes in section 9 with the alternative you rejected.]_
+**Design and implementation constraints:** `CO-frontend-framework`, `CO-backend`, `CO-database`, `CO-mobile-first`, `CO-pwa`, `CO-capacitor`, `CO-mapping`, `CO-existing-application`, `CO-obd2-testing`, `CO-obd-home`, `CO-github`, `CO-github-actions`, `CO-mvp`.
+
+A sentence is added only where a constraint narrows a choice its text does not already make:
+
+- `CO-frontend-framework`, `CO-backend`, `CO-database`, and `CO-mapping` belong in this section because the client's proof of concept already runs that stack and the client's developers inherit it after the January 2027 handoff (`CO-existing-application`).
+- `CO-pwa` and `OE-pwa` make the phone client the same web application, installed to the home screen. `CO-capacitor` adds a native wrapper only when a requirement cannot be met in that browser app and the client agrees to maintain the wrapper.
+- `CO-github` and `CO-github-actions` keep source control and staging deployment on the client's existing repository and GitHub Actions workflow, which deploys the UI and the API from the `STG` branch.
+- `CO-obd2-testing` and `CO-obd-home` apply while the adapter is being proven. At runtime the user's phone reads the OBD-II device; those tools are not a container in the running system.
 
 ## 3. Context and Scope
 
