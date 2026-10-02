@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** 12
 **Client:** Eric Brown
-**Version:** 0.3
+**Version:** 0.4
 
 ---
 
@@ -32,6 +32,7 @@ _Within one use case, `PRE-1`, `POST-1`, and the step numbers are local and may 
 | 2026-09-11 | 0.1 | Initial use cases derived from the vision and scope feature list | Kaylynn Slaughter |
 | 2026-09-25 | 0.2 | Rewrote Purpose/Scope and Use Case List against Client Meeting 1 (Eric Brown); replaced the template's placeholder example with real Drive Grader use cases (`UC-SESS-start-drive-session`, `UC-DL40-conduct-graded-test`, `UC-HOUR-track-progress`); dropped ANLZ/CONT/MON areas pending confirmation | Kaylynn Slaughter |
 | 2026-09-30 | 0.3 | Added `ACCT`, `SYNC`, and `SETT` areas and re-added `MON` (now optional/low priority) against the team's 28-Oct backlog; fully specified `UC-ACCT-reset-password`, `UC-SYNC-sync-offline-data`, and `UC-ADMIN-manage-student-limit`; flagged backlog items that are not use cases (staging indicator, generic "UI/UX", Tailscale) and redirected them out of this document | Kaylynn Slaughter |
+| 2026-10-02 | 0.4 | Checked every specified use case against the client's Drive Tracker proof of concept and corrected flows that did not match it (DL-40 signatures are captured at drive start, DL-40 grading is per-aspect point deductions, GPS is required to start, simulation is platform-admin only, offline sync has no local ID); mapped every area and use case to the `FEAT-*` list in vision-and-scope; added `UC-ACCT-manage-student-roster` (fully specified) and listed `UC-SESS-edit-drive-grades`, `UC-SESS-delete-drive`, `UC-SESS-generate-drive-report`, `UC-GRAD-view-progress-history`, `UC-HOUR-export-hours-log`, `UC-SYNC-check-system-status`, `UC-SETT-install-app`, `UC-SETT-view-whats-new`; recorded FEATs with no use case yet | Kaylynn Slaughter |
 
 ---
 
@@ -39,20 +40,21 @@ _Within one use case, `PRE-1`, `POST-1`, and the step numbers are local and may 
 
 ### 1.1 Purpose
 
-Drive Grader gives parents doing Texas Parent-Taught Driver Education a structured way to grade their teen's driving instead of "go that way, don't hit that cone" with no real criteria. It does this three ways, confirmed directly by the client: (1) real-time infraction logging against ~10 standard grading categories during a practice drive, (2) a digital version of the state's official DL-40 road-test grade sheet — reordered to match the actual test route instead of the sheet's fixed printed order — that ends in a signed, printed grade sheet, and (3) tracking progress toward the 44 hours (30 general + 7 instruction + 7 observation) Texas requires before testing. This document specifies those goals in enough detail that a developer knows what to build and a tester knows what to check.
+Drive Grader gives parents doing Texas Parent-Taught Driver Education a structured way to grade their teen's driving instead of "go that way, don't hit that cone" with no real criteria. It does this three ways, confirmed directly by the client: (1) one-tap mistake logging against the maneuvers in a drive plan during a practice drive, (2) a digital version of the state's official DL-40 road-test grade sheet — ordered to match the actual test route instead of the sheet's fixed printed order — that ends in a signed, printed grade sheet, and (3) tracking progress toward the 44 hours Texas requires before testing. This document specifies those goals in enough detail that a developer knows what to build and a tester knows what to check.
 
 ### 1.2 Scope
 
-Covers what the client confirmed as core: session tracking, real-time grading, the DL-40 digital grading mode, hour/requirement tracking, OBD-II vehicle data integration, and the existing admin panel (organizations, drive plans, maneuvers/score criteria). As of v0.3, also covers account/password management, offline/sync behavior, student-count limits, and dark mode, all pulled from the team's own 28-Oct backlog rather than the client meeting — treat these as team-identified needs, not client-confirmed requirements, until Eric signs off on them.
+Drive Grader extends the client's existing proof of concept, **Drive Tracker** ([odds-tcu-2026/drive-tracker](https://github.com/odds-tcu-2026/drive-tracker)). Where a use case describes something Drive Tracker already does, the flow below is written to match the code, and the Associated Information says what exists today and what has to change. Where a use case and the code disagree, the use case states the intended behavior and the gap is listed as an open issue.
 
-Still explicitly out of scope or unconfirmed: AI evaluation/comparison of sessions (client: "optional, not required — no specific use case identified"); instructional/how-to videos (from the original brief, never revisited). Live parent observation of an in-progress drive (`MON`) was dropped in v0.2 for the same reason but reappears in v0.3 because the team's own backlog lists it and Eric raised it at the 2026-09-29 meeting ("like tracking an Uber") — it remains explicitly **optional** and low priority, not promoted to a confirmed requirement.
+Every area in Section 3 maps to one or more `FEAT-*` entries in [vision-and-scope.md](vision-and-scope.md). Use cases for the client's benchmark items (`FEAT-system-status-indicators`, `FEAT-obd-connection-management`, `FEAT-student-limits`, `FEAT-drive-reporting`, `FEAT-versioning-whats-new`, `FEAT-aerial-map-layer`, `FEAT-dark-mode`, `FEAT-pwa-install-prompts`) are client-requested, not team-invented. Two areas come from the team rather than the client: self-service password reset (`UC-ACCT-reset-password`) and the detailed offline-sync behavior (`UC-SYNC-sync-offline-data`, tracked as `OI-offline`).
 
-**Not use cases — redirect elsewhere:** a few backlog rows are not goals a user accomplishes and shouldn't be forced into this document:
-- *Staging Indicator* — a developer/QA-facing indicator of which environment the app is pointed at. Belongs in architecture/ops notes, not here.
-- *UI/UX* and *Mobile app* — too broad to be a use case; "Mobile app" (PWA vs. Capacitor) is already tracked as an open issue under `UC-SESS-start-drive-session` below.
-- *Tailscale* — team VPN access to the staging environment; infra, not a user-facing feature.
+Out of scope or deferred, per the release plan in vision-and-scope: `FEAT-ai-drive-analysis`, `FEAT-in-car-video`, `FEAT-fleet-tracking`, `FEAT-drive-scheduling`, `FEAT-reservation-integration`, and `FEAT-lesson-content` (content production is the client's work; Drive Tracker already lets a maneuver carry a video link). `FEAT-turn-signal-detection` is a feasibility study with a written finding, not a use case. `FEAT-live-drive-observation` (`MON`) stays listed as optional and low priority.
 
-**Open mapping issue:** these areas are written directly from the client meeting and the team backlog; they have not yet been reconciled against a formal `FEAT-*` list in vision-and-scope.md. Confirm that mapping before treating this section as final.
+**Not use cases — tracked elsewhere:**
+- *UI/UX* — too broad to be a use case; tracked as `OI-ui-improvements`.
+- *Mobile app* — Drive Tracker already contains Capacitor Android and iOS projects, and its OBD screen states that iPhone Safari cannot open Bluetooth or USB adapters. A native build is therefore required for live OBD-II on iPhone; this is a platform constraint, recorded under `UC-SESS-start-drive-session`.
+- *Tailscale* — team VPN access to the staging environment; infrastructure, not a user-facing feature.
+- *Staging Indicator* — no longer a separate item: the client listed it as part of `FEAT-system-status-indicators`, so it is covered by `UC-SYNC-check-system-status`.
 
 ---
 
@@ -107,24 +109,73 @@ _Data fields are specified as a table:_
 
 ## 3. Use Case List
 
-| Area code | Feature area | Use cases |
+### 3.1 Areas
+
+| Area code | Feature area | Features (vision-and-scope) |
 |---|---|---|
-| ACCT | Account & Authentication | `UC-ACCT-reset-password`, `UC-ACCT-create-account`, `UC-ACCT-login` |
-| SESS | Drive Session Management | `UC-SESS-start-drive-session`, `UC-SESS-end-drive-session`, `UC-SESS-view-session-history`, `UC-SESS-filter-session-history`, `UC-SESS-select-map-layer` |
-| GRAD | Real-Time Infraction Grading | `UC-GRAD-log-infraction`, `UC-GRAD-review-infraction-log` |
-| DL40 | Digital DL-40 Grade Sheet | `UC-DL40-configure-checklist`, `UC-DL40-conduct-graded-test`, `UC-DL40-capture-signatures-and-print`, `UC-DL40-suggest-route` |
-| HOUR | Hour & Requirement Tracking | `UC-HOUR-track-progress`, `UC-HOUR-configure-requirements` |
-| OBD | OBD-II / Vehicle Data Integration | `UC-OBD-pair-device`, `UC-OBD-stream-vehicle-data`, `UC-OBD-show-connection-status` |
-| SYNC | Offline & Connectivity | `UC-SYNC-sync-offline-data` |
-| ADMIN | Organization & Drive Plan Administration | `UC-ADMIN-manage-drive-plans`, `UC-ADMIN-manage-maneuvers-and-criteria`, `UC-ADMIN-manage-student-limit` |
-| MON | Live Parent Observation (optional) | `UC-MON-observe-live-session` |
-| SETT | App Settings | `UC-SETT-toggle-dark-mode` |
+| ACCT | Account & Authentication | `FEAT-accounts-and-organizations` |
+| SESS | Drive Session Management | `FEAT-drive-tracking`, `FEAT-drive-review`, `FEAT-drive-reporting`, `FEAT-aerial-map-layer` |
+| GRAD | Real-Time Infraction Grading | `FEAT-graded-practice-drive`, `FEAT-progress-history` |
+| DL40 | Digital DL-40 Grade Sheet | `FEAT-dl40-road-test` |
+| HOUR | Hour & Requirement Tracking | `FEAT-training-hours-log` |
+| OBD | OBD-II / Vehicle Data Integration | `FEAT-vehicle-data`, `FEAT-obd-connection-management` |
+| SYNC | Offline & Connectivity | `FEAT-system-status-indicators`; `OI-offline` |
+| ADMIN | Organization & Drive Plan Administration | `FEAT-drive-plans`, `FEAT-student-limits` |
+| MON | Live Parent Observation (optional) | `FEAT-live-drive-observation` |
+| SETT | App Settings | `FEAT-dark-mode`, `FEAT-pwa-install-prompts`, `FEAT-versioning-whats-new` |
 
-**Note on OBD:** four Bluetooth OBD-II units are already purchased, but as of the client meeting none had been tested. Whether CAN-bus data (turn signal, brake light) is exposed at all, and whether this works on EVs, are open questions, not settled requirements. Treat `UC-OBD-*` as spikes until that's resolved — don't build `UC-GRAD` or `UC-DL40` features that depend on OBD data being available.
+### 3.2 Use cases
 
-**Note on MON:** the backlog item is explicitly "Optional: live track your kid's drive score," and Eric described it at the 2026-09-29 meeting as a product idea rather than a requirement. Keep it at low priority and do not let it pull scope from `SESS`, `GRAD`, or `DL40`, which are client-confirmed.
+"Drive Tracker today" says whether the client's proof of concept already does this: **Exists**, **Partial**, or **New**.
 
-**Not yet specified in Section 4:** `UC-ACCT-create-account`, `UC-ACCT-login`, `UC-SESS-end-drive-session`, `UC-SESS-view-session-history`, `UC-SESS-filter-session-history`, `UC-SESS-select-map-layer`, both `UC-GRAD-*`, `UC-DL40-configure-checklist`, `UC-DL40-capture-signatures-and-print`, `UC-DL40-suggest-route`, `UC-HOUR-configure-requirements`, `UC-OBD-pair-device`, `UC-OBD-stream-vehicle-data`, `UC-OBD-show-connection-status`, both `UC-ADMIN-*` drive-plan/maneuver ones, `UC-MON-observe-live-session`, `UC-SETT-toggle-dark-mode`. This is a known gap, not an oversight — see "What's left before this document is stable" at the end for what to draft next.
+| Use case | Feature | Drive Tracker today | Spec status |
+|---|---|---|---|
+| `UC-ACCT-create-account` | `FEAT-accounts-and-organizations` | Exists (Register page) | Listed |
+| `UC-ACCT-login` | `FEAT-accounts-and-organizations`, `FEAT-system-status-indicators` | Exists, with "API unavailable" banner | Listed |
+| `UC-ACCT-reset-password` | `FEAT-accounts-and-organizations` | Partial (platform-admin reset only) | Specified |
+| `UC-ACCT-manage-student-roster` | `FEAT-accounts-and-organizations` | Exists (Students page) | Specified |
+| `UC-SESS-start-drive-session` | `FEAT-drive-tracking` | Exists | Specified |
+| `UC-SESS-end-drive-session` | `FEAT-drive-tracking` | Exists | Listed |
+| `UC-SESS-edit-drive-grades` | `FEAT-drive-review` | Exists ("Edit Grades" reopens a finished drive) | Listed |
+| `UC-SESS-delete-drive` | `FEAT-drive-review` | Exists (soft delete) | Listed |
+| `UC-SESS-view-session-history` | `FEAT-drive-review` | Exists (Dashboard, paged list) | Listed |
+| `UC-SESS-filter-session-history` | `FEAT-drive-reporting` | New | Listed |
+| `UC-SESS-generate-drive-report` | `FEAT-drive-reporting` | New | Listed |
+| `UC-SESS-select-map-layer` | `FEAT-aerial-map-layer` | New (one OpenStreetMap street layer only) | Listed |
+| `UC-GRAD-log-infraction` | `FEAT-graded-practice-drive` | Exists ("Parent Practice" flag mode) | Listed |
+| `UC-GRAD-review-infraction-log` | `FEAT-drive-review` | Exists (Session Review page) | Listed |
+| `UC-GRAD-view-progress-history` | `FEAT-progress-history` | Partial (API endpoint, no screen) | Listed |
+| `UC-DL40-configure-checklist` | `FEAT-dl40-road-test`, `FEAT-drive-plans` | Exists (drive plan maneuver order) | Listed |
+| `UC-DL40-conduct-graded-test` | `FEAT-dl40-road-test` | Exists | Specified |
+| `UC-DL40-capture-signatures-and-print` | `FEAT-dl40-road-test` | Exists (signatures at start, PDF from review) | Listed |
+| `UC-DL40-suggest-route` | none | New | Listed — no FEAT |
+| `UC-HOUR-track-progress` | `FEAT-training-hours-log` | New | Specified |
+| `UC-HOUR-configure-requirements` | `FEAT-training-hours-log` | New | Listed |
+| `UC-HOUR-export-hours-log` | `FEAT-training-hours-log` | New | Listed |
+| `UC-OBD-pair-device` | `FEAT-obd-connection-management` | Exists (Bluetooth LE, USB serial, simulator) | Listed |
+| `UC-OBD-stream-vehicle-data` | `FEAT-vehicle-data` | Exists (speed, RPM, throttle; turn signal not available) | Listed |
+| `UC-OBD-show-connection-status` | `FEAT-obd-connection-management` | Exists (Connected / Not connected badge) | Listed |
+| `UC-SYNC-sync-offline-data` | `OI-offline` | Partial (device-storage queues) | Specified |
+| `UC-SYNC-check-system-status` | `FEAT-system-status-indicators` | Partial (API-down banner on login only) | Listed |
+| `UC-ADMIN-manage-drive-plans` | `FEAT-drive-plans` | Exists (Admin and SaaS Admin pages) | Listed |
+| `UC-ADMIN-manage-maneuvers-and-criteria` | `FEAT-drive-plans` | Exists (Admin and SaaS Admin pages) | Listed |
+| `UC-ADMIN-manage-student-limit` | `FEAT-student-limits` | New | Specified |
+| `UC-MON-observe-live-session` | `FEAT-live-drive-observation` | New | Listed — optional |
+| `UC-SETT-toggle-dark-mode` | `FEAT-dark-mode` | New | Listed |
+| `UC-SETT-install-app` | `FEAT-pwa-install-prompts` | Partial (install gate component) | Listed |
+| `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | New | Listed |
+
+### 3.3 Notes
+
+**Note on OBD:** the team's adapter does not report turn-signal use (`RI-turn-signal-unavailable`), and the client said "track what you can." Drive Tracker already reads speed, engine RPM, and throttle over Bluetooth LE or USB serial from an ELM327 adapter. An OBD connection is never required to start or grade a drive. Do not build `GRAD` or `DL40` behavior that depends on OBD data being present.
+
+**Note on MON:** the backlog item is explicitly "Optional: live track your kid's drive score," and Eric described it at the 2026-09-29 meeting as a product idea rather than a requirement. Vision-and-scope defers it (`OI-live-observation`) and flags the privacy exposure of a minor's live location (`RI-minor-location-data`). Keep it at low priority and do not let it pull scope from `SESS`, `GRAD`, or `DL40`.
+
+**Note on access control:** in Drive Tracker today, the endpoints that read one drive's details, grades, route, motion events, and OBD samples (`GET /sessions/:id` and its sub-resources, `GET /grades/session/:id`) and the grade-delete endpoints check that the caller is logged in but not that the drive belongs to them. That conflicts with `BR-parent-own-students` and `BR-org-roster`. Every `SESS` and `GRAD` use case that reads or changes an existing drive must include an "out-of-scope drive" exception when it is specified.
+
+**Note on registration:** Drive Tracker's Register page lets a new user choose any role, including examiner and instructor. Whether self-registration may grant staff roles must be settled when `UC-ACCT-create-account` is specified.
+
+**Features with no use case yet** (deferred per vision-and-scope's release plan, so not drafted): `FEAT-turn-signal-detection`, `FEAT-ai-drive-analysis`, `FEAT-in-car-video`, `FEAT-fleet-tracking`, `FEAT-drive-scheduling`, `FEAT-reservation-integration`, `FEAT-lesson-content`. Drive Tracker already has a partial reservation integration (today's appointments preselect a roster student, and staff can sync the roster from an external system); it appears below as extensions of `UC-SESS-start-drive-session` and `UC-ACCT-manage-student-roster`, not as its own use case.
 
 ---
 
@@ -137,43 +188,56 @@ _Data fields are specified as a table:_
 **UC ID and Name:** `UC-ACCT-reset-password`: Reset a forgotten password
 **Created By:** Team 12
 **Date Created:** 2026-09-30
-**Primary Actor:** parent, instructor, or org admin (any account holder)
-**Secondary Actors:** email service (sends the reset link)
+**Primary Actor:** any account holder (parent, instructor, examiner, or student with a login)
+**Secondary Actors:** email service (sends the reset link); platform administrator (assisted reset, extension 1b)
 **Trigger:** The user selects "Forgot Password?" on the login screen.
-**Description:** A user who cannot remember their password wants to regain access to their account by resetting it through a verified channel, without needing an admin to intervene.
+**Description:** A user who cannot remember their password wants to regain access to their account through a verified channel, without waiting for an administrator.
 
 **Preconditions:**
 
-- PRE-1. An account exists with the email address the user provides.
+- PRE-1. The login screen is reachable and the API responds to its health check.
 
 **Postconditions:**
 
-- POST-1. The account's password is updated to a new value the user has chosen.
-- POST-2. All existing sessions for that account are invalidated, requiring re-login.
+- POST-1. The account's stored password hash is replaced with a hash of the new password the user chose.
+- POST-2. Every login token issued to that account before the reset is rejected on its next use.
+- POST-3. The reset token is spent and cannot be used again.
 
 **Main Success Scenario:**
 
-1. The user selects "Forgot Password?" and enters the email address on file.
-2. The system generates a single-use, time-limited reset token and emails a reset link to that address.
-3. The user opens the link and enters a new password, confirmed by re-entry.
-4. The system validates the new password against the "Password rules" in Associated Information and the token's validity.
-5. The system updates the stored password, invalidates the token, and invalidates existing sessions.
-6. The system confirms the reset and returns the user to login.
-7. Use case ends.
+1. The user selects "Forgot Password?" and enters their email address.
+2. The system shows the same confirmation message whether or not an active account has that email ("If that email exists, a reset link has been sent").
+3. If an active account exists, the system generates a single-use, time-limited reset token and emails a reset link to that address.
+4. The user opens the link and enters a new password twice.
+5. The system validates the token and the new password against the "Password rules" in Associated Information.
+6. The system stores the new password hash, spends the token, and invalidates the account's earlier login tokens, in one transaction.
+7. The system confirms the reset and returns the user to the login screen.
+8. Use case ends.
 
 **Extensions:**
 
-- **1a. The entered email does not match any account:**
-    - 1a1. The system shows a generic confirmation message ("If that email exists, a reset link has been sent") rather than revealing whether the account exists, to avoid leaking account existence.
-- **3a. The reset link has expired or was already used:**
-    - 3a1. The system rejects the attempt and offers to send a new reset link.
-- **4a. The new password fails validation (too short, doesn't meet rules):**
-    - 4a1. The system alerts the user to the specific rule violated and returns to step 3.
-- **4b. The two password entries don't match:**
-    - 4b1. The system alerts the user and returns to step 3.
+- **1a. The entered text is not a valid email address:**
+    - 1a1. The system shows a format error and stays on step 1.
+- **1b. The user has no access to the email on file:**
+    - 1b1. The user contacts the school. A platform administrator sets a temporary password from the SaaS admin screen (this already exists in Drive Tracker).
+    - 1b2. Use case ends; the user logs in with the temporary password and changes it.
+- **2a. The email belongs to no account, or to a deactivated or deleted account:**
+    - 2a1. The system shows the same message as step 2 and sends nothing. A reset never reactivates a deactivated account.
+- **2b. The same email has requested several resets in a short period:**
+    - 2b1. The system shows the same message as step 2 but sends no further emails until the rate limit window passes.
+- **3a. The email service is unavailable:**
+    - 3a1. The system logs the failure without the user's email in the log, still shows the step 2 message, and changes nothing.
+- **5a. The reset link has expired or was already used:**
+    - 5a1. The system rejects it and offers to send a new link (returns to step 1).
+- **5b. The new password breaks a password rule:**
+    - 5b1. The system names the rule that failed and returns to step 4.
+- **5c. The two password entries don't match:**
+    - 5c1. The system alerts the user and returns to step 4.
+- **6a. The update fails partway (database error):**
+    - 6a1. The transaction rolls back; the old password and the token both stay valid, and the system asks the user to try again.
 
 **Priority:** High
-**Frequency of Use:** Infrequent per user, but needed from day one since it's the only way back into a locked-out account.
+**Frequency of Use:** Infrequent per user, but it is the only self-service way back into a locked-out account.
 **Business Rules:** `BR-password-complexity`, `BR-reset-token-expiry`
 
 **Associated Information:**
@@ -182,116 +246,217 @@ Password rules:
 
 | Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
 |---|---|---|---|---|
-| new password | String | Per `BR-password-complexity`; must match confirmation field | Never logged or stored in plaintext | Password |
-| reset token | String | Single-use, expires per `BR-reset-token-expiry` | Sent only to the verified email on file | Reset Token |
+| email | String | Valid email format | Never echoed back in a way that reveals whether an account exists | Account |
+| new password | String | Per `BR-password-complexity`; must match the confirmation field | Hashed with bcrypt, as Drive Tracker already does; never logged or stored in plaintext | Password |
+| reset token | String | Single-use; expires per `BR-reset-token-expiry`; stored only as a hash | Sent only to the email on file | Reset Token |
 
-Failure handling: a failed or abandoned reset leaves the old password active and unchanged; nothing is updated until step 5 succeeds atomically.
+Drive Tracker today: no self-service reset and no email library in the API. Registration and the admin reset both require at least 6 characters. A platform administrator can already set any user's password (`PUT /saas-admin/users/:id/password`). Login tokens are stateless JWTs with no revocation, so POST-2 needs a new mechanism (for example, a per-user token version checked on each request).
+
+Failure handling: nothing changes until step 6 commits; an abandoned reset leaves the old password working.
 
 **Related Use Cases:** `UC-ACCT-login`; `UC-ACCT-create-account`.
-**Assumptions:** The system has a working transactional email channel; this is not yet confirmed as part of the current stack and should be checked against what the client's existing admin panel already uses.
-**Open Issues:** Is there a fallback for a user with no access to their email (e.g., an org-admin-assisted reset)? Not raised by the client or the backlog item as written.
+**Assumptions:** The team can add a transactional email provider to the client's stack.
+**Open Issues:** Which email provider, and who pays for it? Should the platform-admin reset in extension 1b also invalidate existing logins? Today it does not.
+
+---
+
+### UC-ACCT-manage-student-roster: The user manages their student roster
+
+**UC ID and Name:** `UC-ACCT-manage-student-roster`: Manage the student roster
+**Created By:** Team 12
+**Date Created:** 2026-10-02
+**Primary Actor:** parent (personal roster), or examiner/instructor (their organization's roster)
+**Secondary Actors:** the school's external student system (organization sync only)
+**Trigger:** The user opens the Students page.
+**Description:** A drive can only be started for a student on the grader's roster, so the user needs to add, correct, archive, and restore the students they supervise. Roster students are records, not logins: a teen does not need an account to be graded.
+
+**Preconditions:**
+
+- PRE-1. The user is logged in as a parent, examiner, or instructor.
+- PRE-2. An examiner or instructor belongs to an organization.
+
+**Postconditions:**
+
+- POST-1. The roster entry is created, updated, archived, or restored as requested, within the user's own scope only.
+- POST-2. Drives already recorded for an archived student remain in history unchanged.
+
+**Main Success Scenario:**
+
+1. The user opens Students.
+2. The system lists the active students in the user's scope: a parent sees their personal roster; an examiner or instructor sees their organization's roster.
+3. The user selects "Add student" and enters the student's details.
+4. The system validates the details against the "Roster fields" in Associated Information and checks that the student is not already on the roster.
+5. The system saves the student, who can be selected for a new drive immediately.
+6. Use case ends.
+
+**Extensions:**
+
+- **2a. The roster is empty:**
+    - 2a1. The system shows an empty state with an "Add student" action (continue at step 3).
+- **2b. The user searches the roster:**
+    - 2b1. The system filters the list by name or permit/license number within the user's scope only, never across organizations.
+- **3a. The user edits an existing student instead:**
+    - 3a1. The user changes fields on an existing entry; continue at step 4.
+- **3b. The user archives a student:**
+    - 3b1. The system asks for confirmation.
+    - 3b2. On confirmation, the system hides the student from active lists and from drive selection without deleting it or its drives.
+- **3c. The user restores an archived student:**
+    - 3c1. The system returns the student to the active list, after the duplicate check in step 4.
+- **3d. An examiner or instructor syncs the roster from the school's external system:**
+    - 3d1. The system fetches students from the integration and adds or updates them by their stable external ID.
+    - 3d2. The system skips rows with no external ID or no name and reports added, updated, and skipped counts.
+    - 3d3. If the integration fails, the system keeps the current roster unchanged and reports the failure. Integration data never overwrites a parent's personal roster.
+- **4a. A required field is missing or a value is invalid (e.g., bad email or date):**
+    - 4a1. The system names the field and stays on the form.
+- **4b. The student duplicates an existing roster entry:**
+    - 4b1. The system rejects the save and points to the existing entry.
+- **4c. The roster is at its student limit (see `UC-ADMIN-manage-student-limit`):**
+    - 4c1. The system blocks the add or restore, explains the limit, and saves nothing.
+- **5a. The user tries to open or change a student outside their scope (e.g., by editing a URL):**
+    - 5a1. The server rejects the request; nothing is revealed about that student.
+
+**Priority:** High — a precondition of every drive.
+**Frequency of Use:** A few times per family at setup; regularly for school staff as students enroll.
+**Business Rules:** `BR-parent-own-students`, `BR-parent-multiple-students`, `BR-org-roster`, `BR-platform-admin-settings`, `BR-roster-no-hard-delete`, `BR-max-students-per-account`
+
+**Associated Information:**
+
+Roster fields:
+
+| Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
+|---|---|---|---|---|
+| first name, last name | String | Required | Minor's personal data; visible only within scope | Roster Student |
+| middle name, suffix | String | Optional | Same as above | Roster Student |
+| date of birth | Date | Optional; valid date | Same as above; printed on the DL-40 | Roster Student |
+| permit or license number | String | Optional; up to 40 characters; used for duplicate checks and appointment matching | Same as above; printed on the DL-40 | Permit Number |
+| email | String | Optional; valid email format | Same as above | Roster Student |
+| school name | String | Optional; up to 200 characters | Printed on the DL-40 | Roster Student |
+| external student ID | String | Set only by organization sync; unique per organization | Not editable by users | External Student ID |
+
+Drive Tracker today: implemented as specified in the client's approved "Managed Student Rosters" spec, with server-side scope checks and database-backed tests. No student limit exists yet (extension 4c is new).
+
+Failure handling: each save is a single write; a sync is atomic, so a failed sync leaves the roster exactly as it was.
+
+**Related Use Cases:** `UC-SESS-start-drive-session` (needs an active roster student); `UC-ADMIN-manage-student-limit` (sets the limit in 4c).
+**Assumptions:** Archived students do not count toward the student limit; unconfirmed.
+**Open Issues:** Should archived students count toward the limit? Does a parent need to link a student's login (Drive Tracker's join-code flow), or is that flow retired?
 
 ---
 
 ## SYNC — Offline & Connectivity
 
-### UC-SYNC-sync-offline-data: The app syncs session data recorded without internet access
+### UC-SYNC-sync-offline-data: The app uploads drive data recorded without internet access
 
-**UC ID and Name:** `UC-SYNC-sync-offline-data`: Sync offline session data
+**UC ID and Name:** `UC-SYNC-sync-offline-data`: Upload drive data recorded offline
 **Created By:** Team 12
 **Date Created:** 2026-09-30
-**Primary Actor:** system (triggered automatically on connectivity return)
-**Secondary Actors:** parent (sees sync status)
-**Trigger:** The device regains internet connectivity while one or more drive sessions have unsynced local data.
-**Description:** Since a drive takes place in a moving vehicle, connectivity can drop or never exist for the whole session; the app needs to keep recording locally and reconcile with the backend once a connection is available, so no session data is lost and the parent isn't blocked from driving.
+**Primary Actor:** system (runs automatically)
+**Secondary Actors:** the grader (sees the result)
+**Trigger:** The device regains an internet connection, or the app is opened, while drive data is waiting in device storage.
+**Description:** Coverage drops along real routes, so the app keeps recording while offline and uploads what it recorded once a connection returns. No route point, mistake, motion event, or OBD sample should be lost, and the grader should never be blocked from continuing a drive because of coverage.
 
 **Preconditions:**
 
-- PRE-1. At least one drive session has data recorded locally that has not yet been confirmed as saved to the backend.
-- PRE-2. The device has a usable internet connection.
+- PRE-1. Device storage holds at least one queued item (route points, grades, motion events, or OBD samples) for a drive that already exists on the server.
+- PRE-2. The device has a connection that reaches the API.
 
 **Postconditions:**
 
-- POST-1. All previously unsynced session data (route, infractions, OBD readings) is persisted to the backend.
-- POST-2. The locally queued copy is marked synced and the parent sees an up-to-date sync status.
+- POST-1. Every queued item the server accepts is stored against its drive.
+- POST-2. Accepted items are removed from device storage; anything not yet accepted stays queued.
+- POST-3. The grader can see whether any of their data is still waiting to upload.
 
 **Main Success Scenario:**
 
-1. The system detects a usable internet connection while unsynced local session data exists.
-2. The system uploads the queued data to the backend in the order the sessions were recorded.
-3. The backend confirms receipt of each session's data.
-4. The system marks each confirmed session as synced and clears it from the local queue.
-5. The system updates the sync status shown to the parent (e.g., "All drives synced").
+1. The system detects that the device is back online, or that the app has opened with queued data.
+2. The system uploads the queued items, grouped by drive and in the order they were recorded.
+3. The server confirms each batch.
+4. The system removes the confirmed batches from device storage.
+5. The system clears the "waiting to upload" indicator once nothing is queued (see `UC-SYNC-check-system-status`).
 6. Use case ends.
 
 **Extensions:**
 
-- **2a. The connection drops again mid-sync:**
-    - 2a1. The system stops uploading, leaves already-confirmed sessions marked synced, and leaves the rest queued for the next connectivity event.
-- **3a. The backend rejects a session's data (e.g., validation failure, conflicting record):**
-    - 3a1. The system keeps that session queued and flagged as "sync failed" rather than silently dropping it, and surfaces this to the parent rather than failing silently.
-- **3b. Two devices recorded overlapping or duplicate data for the same session (e.g., app reinstalled mid-drive):**
-    - 3b1. The system treats sessions by their locally generated unique ID, so re-sync of an already-synced session is a no-op rather than a duplicate.
+- **1a. The grader tries to finish or instant-fail a drive while offline:**
+    - 1a1. The system keeps the drive open and the data queued, tells the grader the drive will be finalized when the connection returns, and finalizes it after the queue drains.
+- **1b. Device storage was full when the app tried to queue data during the drive:**
+    - 1b1. The system warned the grader at that moment that data was not being saved, rather than failing silently; whatever was queued before then still uploads.
+- **2a. The connection drops again mid-upload:**
+    - 2a1. The system stops, keeps already-confirmed batches removed, and leaves the rest queued for the next trigger.
+- **3a. The server permanently rejects a batch (a 4xx response, e.g., its drive was deleted):**
+    - 3a1. The system removes that batch so it is not retried forever, and tells the grader how many items were discarded and for which drive.
+- **3b. The server fails temporarily (a 5xx response or timeout):**
+    - 3b1. The system keeps the batch queued and retries on the next trigger.
+- **3c. A batch was stored but the confirmation was lost, so it is sent again:**
+    - 3c1. The server ignores items it has already stored for that drive, so the retry does not duplicate route points or grades.
 
 **Priority:** High
-**Frequency of Use:** Every drive conducted with limited or no cellular connectivity — likely common, since practice drives happen in all kinds of areas.
+**Frequency of Use:** Any drive through weak coverage — likely common.
 **Business Rules:** none identified yet
 
 **Associated Information:**
 
 | Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
 |---|---|---|---|---|
-| session local ID | UUID | Generated at session start, stable for the session's life | Used to deduplicate on sync; not sensitive | Drive Session |
-| sync status | Enum | pending, syncing, synced, failed | Visible to the parent for that session only | Sync Status |
+| queued batch | Object | Belongs to exactly one existing drive ID | Contains a minor's location; kept only on the device that recorded it, and removed once accepted | Upload Queue |
+| upload status | Enum | waiting, uploading, up to date, items discarded | Visible to the grader who recorded the drive | Upload Status |
 
-Failure handling: a session's data is never deleted locally until the backend has confirmed receipt; a failed sync leaves the local copy intact and retries on the next connectivity event rather than being treated as a dead letter.
+Drive Tracker today (`frontend/src/stores/session.js`): route points, grades, motion events, and OBD samples are queued in the browser's `localStorage` and retried every 10–15 seconds and on the browser's `online` event, **but only while a drive is active**; anything left over is retried only when the next drive starts (step 1 on app open is new). The drive record itself is created by the server when the drive starts, so starting a drive needs a connection (see `UC-SESS-start-drive-session`, 7b), and so does finishing one (extension 1a is new). Telemetry rejected with a 4xx is dropped without telling the user (3a1's notice is new), while queued grades are retried even after a 4xx. A failed `localStorage` write is ignored silently (1b is new). The server has no duplicate protection (3c is new). Removing a practice-mode flag is not queued at all and is lost offline.
 
-**Related Use Cases:** `UC-SESS-start-drive-session` (the thing being synced); `UC-OBD-show-connection-status` (a related but distinct status indicator, for the OBD-II Bluetooth link rather than internet connectivity).
-**Assumptions:** The device can reliably detect "has internet" vs. "has no internet" distinctly from "has GPS" — these are different capabilities and shouldn't be conflated in the implementation.
-**Open Issues:** None from the client meeting — this entire area comes from the team's own backlog ("Internet Connection," due 28-Oct), not a client requirement. Confirm with Eric whether offline-first behavior is expected or whether a simpler "drive requires connectivity" constraint is acceptable for the MVP.
+Failure handling: data is removed from the device only after the server confirms it.
+
+**Related Use Cases:** `UC-SESS-start-drive-session`; `UC-SESS-end-drive-session`; `UC-SYNC-check-system-status` (shows the indicator); `UC-OBD-show-connection-status` (a different link: the car's adapter, not the internet).
+**Assumptions:** "Online" means the API answers, not merely that the device reports a network; the browser's `online` event alone is not enough.
+**Open Issues:** `OI-offline` — confirm with Eric whether a drive must be startable with no connection at all (which needs a device-generated drive ID), or whether "start online, keep recording offline" is enough for the MVP. `localStorage` holds only a few megabytes; is that enough for a long drive with OBD samples once per second?
 
 ---
 
 ## ADMIN — Organization & Drive Plan Administration
 
-### UC-ADMIN-manage-student-limit: The org admin manages the account's student limit
+### UC-ADMIN-manage-student-limit: The platform administrator sets an account's student limit
 
-**UC ID and Name:** `UC-ADMIN-manage-student-limit`: Manage the account's student limit
+**UC ID and Name:** `UC-ADMIN-manage-student-limit`: Set an account's student limit
 **Created By:** Team 12
 **Date Created:** 2026-09-30
-**Primary Actor:** org admin
+**Primary Actor:** platform administrator
 **Secondary Actors:** none
-**Trigger:** The org admin opens account settings and views or changes the student limit.
-**Description:** The org admin wants to see how many student/driver profiles their account is allowed and currently uses, and adjust that limit, so the org doesn't silently hit a cap mid-semester or get charged for a tier they don't need.
+**Trigger:** The platform administrator opens an account in SaaS administration to view or change its student limit.
+**Description:** The client's proposed business model is gating each account to a maximum number of students (`FEAT-student-limits`, client benchmark item 5). The platform administrator needs to see each account's limit and current use and change it, for example when a family pays for another student. The account holder can see their limit but cannot raise it themselves, or the gate would mean nothing.
 
 **Preconditions:**
 
-- PRE-1. The org admin is logged in and authenticated with admin privileges for the org.
+- PRE-1. The user is logged in with the platform administrator flag.
+- PRE-2. The account being changed exists.
 
 **Postconditions:**
 
-- POST-1. The org's configured student limit reflects the admin's change, if any was made.
+- POST-1. The account's student limit equals the new value.
+- POST-2. Adding or restoring students for that account is blocked once its active student count reaches the limit (`UC-ACCT-manage-student-roster`, 4c).
 
 **Main Success Scenario:**
 
-1. The org admin opens account settings.
-2. The system displays the current student limit and the number of student/driver profiles currently in use.
-3. The org admin requests a change to the limit.
-4. The system validates the requested limit against the "Student limit rules" in Associated Information.
-5. The system updates the org's student limit.
+1. The platform administrator opens SaaS administration and selects an account.
+2. The system shows the account's current student limit and its number of active students.
+3. The platform administrator enters a new limit and saves.
+4. The system validates the new limit against the "Student limit rules" in Associated Information.
+5. The system saves the limit and records who changed it and when.
 6. The system confirms the change.
 7. Use case ends.
 
 **Extensions:**
 
-- **4a. The requested limit is below the number of currently active student profiles:**
-    - 4a1. The system alerts the admin that existing profiles would exceed the new limit and does not apply the change until the admin either removes profiles or picks a higher limit.
-- **4b. The requested limit exceeds what the org's plan/tier allows:**
-    - 4b1. The system alerts the admin and, if an upgrade path exists, offers it; otherwise the limit is capped at the plan maximum.
+- **1a. The user is not a platform administrator:**
+    - 1a1. The system does not show SaaS administration, and the server rejects the request.
+- **4a. The new limit is lower than the account's active student count:**
+    - 4a1. The system rejects it, shows the active count, and changes nothing. Students are never archived automatically to fit a limit.
+- **4b. The new limit is not a whole number of at least 1:**
+    - 4b1. The system names the problem and stays on step 3.
+- **5a. The save fails:**
+    - 5a1. The old limit stays in force and the system reports the error.
 
-**Priority:** Medium
-**Frequency of Use:** Rare — set at onboarding, revisited occasionally as an org grows.
-**Business Rules:** `BR-max-students-per-account`
+**Priority:** Medium — client benchmark item, but N has not been set.
+**Frequency of Use:** Rare — at sign-up and whenever an account's plan changes.
+**Business Rules:** `BR-max-students-per-account`, `BR-platform-admin-settings`
 
 **Associated Information:**
 
@@ -299,143 +464,192 @@ Student limit rules:
 
 | Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
 |---|---|---|---|---|
-| student limit | Integer | Must be ≥ current active student count; capped per `BR-max-students-per-account` | Admin-only; not visible to parents or students | Student Limit |
+| student limit | Integer | ≥ 1 and ≥ the account's active student count; default per `BR-max-students-per-account` | Set only by a platform administrator; the account holder may view it | Student Limit |
 
-Failure handling: a rejected change leaves the existing limit in place; nothing is left in a partially-applied state.
+Drive Tracker today: no student cap exists anywhere in the code. SaaS administration (users, organizations, plans, maneuvers, criteria, drive types) already exists behind the platform-admin flag, so this belongs there.
 
-**Related Use Cases:** `UC-ACCT-create-account` (profile creation should be blocked at the limit, not just reported after the fact).
-**Assumptions:** The limit is per-organization, not per-parent — unconfirmed, since this entire item comes from the team backlog rather than the client meeting.
-**Open Issues:** Is this a hard technical limit, a billing tier boundary, or both? The backlog item ("# of students limit") doesn't say, and it hasn't been raised with Eric yet.
+Failure handling: a single write; a rejected or failed change leaves the old limit.
+
+**Related Use Cases:** `UC-ACCT-manage-student-roster` (enforces the limit); `UC-ACCT-create-account` (a new account gets the default limit).
+**Assumptions:** None beyond the open issues.
+**Open Issues:** The client has not named N, so `BR-max-students-per-account` is not yet a rule (business-rules.md). Is the limit per parent profile or per organization ("per account or profile" in vision-and-scope)? Does organization roster sync count toward it? `OI-business-model`.
 
 ---
 
 ## SESS — Drive Session Management
 
-### UC-SESS-start-drive-session: The parent starts a drive session
+### UC-SESS-start-drive-session: The grader starts a drive
 
-**UC ID and Name:** `UC-SESS-start-drive-session`: Start a drive session
+**UC ID and Name:** `UC-SESS-start-drive-session`: Start a drive
 **Created By:** Team 12
 **Date Created:** 2026-09-25
-**Primary Actor:** parent (or instructor)
-**Secondary Actors:** OBD-II device (optional, real or simulated); GPS provider (real or simulated)
-**Trigger:** The parent creates a new drive and taps "Begin Drive."
-**Description:** The parent wants to start a named drive session for a specific driver profile, with GPS and optional OBD-II tracking running, so the drive can be graded in real time and reviewed afterward.
+**Primary Actor:** grader (parent, instructor, or examiner)
+**Secondary Actors:** GPS provider; OBD-II adapter (optional); the student and parent/guardian (sign for DL-40 drives); the school's reservation system (optional)
+**Trigger:** The grader opens New Drive.
+**Description:** The grader wants to start a drive for one of their students under a chosen drive plan, with the route recorded from GPS and vehicle data from an OBD-II adapter if one is connected, so the drive can be graded as it happens and reviewed afterward.
 
 **Preconditions:**
 
-- PRE-1. The user is logged in and authenticated.
-- PRE-2. A driver profile exists to associate with the session (e.g., "Test Driver").
+- PRE-1. The user is logged in as a parent, instructor, or examiner.
+- PRE-2. At least one active student is on the user's roster.
+- PRE-3. At least one active drive plan is available to the user's role and organization.
 
 **Postconditions:**
 
-- POST-1. A drive session record exists in "in progress" state, associated with the driver profile and a drive plan (e.g., "Basic Skills").
-- POST-2. GPS route data (real or simulated) and, if selected, OBD-II data begin logging against the session.
+- POST-1. A drive record exists with its start time, the selected roster student, the drive plan, and the plan's drive type.
+- POST-2. The drive stores a fixed copy of the student's name, permit number, date of birth, and school, so later roster edits don't change it.
+- POST-3. For a DL-40 drive type, the student's signature, and the parent/guardian section if used, are stored with the drive.
+- POST-4. Route points, motion events (hard braking, hard acceleration, sharp turns), and, if an adapter is connected, OBD samples are being recorded against the drive.
 
 **Main Success Scenario:**
 
-1. The parent creates a new drive, naming the drive plan and selecting the driver profile.
-2. The system presents session settings (GPS source, OBD-II device) with sensible defaults.
-3. The parent accepts the defaults or selects a simulated GPS and/or simulated OBD-II device for testing, or a real device if in-vehicle.
-4. The parent taps "Begin Drive."
-5. The system starts logging GPS location, speed, and route, plus accelerometer data (hard braking, hard turns, G-forces).
-6. The system displays the live in-progress view so the parent can grade the drive (see `UC-GRAD-log-infraction`) while it runs.
-7. Use case ends (session continues until `UC-SESS-end-drive-session`).
+1. The grader opens New Drive.
+2. The system lists the drive plans available to the grader and the active students on their roster.
+3. The grader selects a plan and a student, and optionally records weather, traffic, and notes.
+4. The system shows the plan's drive type. If it requires a DL-40, the system also shows the student signature pad and the optional parent/guardian section (relationship, driver license number, signature).
+5. The grader optionally connects an OBD-II adapter (see `UC-OBD-pair-device`) and taps "Begin Drive."
+6. The system checks location permission and gets a GPS fix.
+7. The system creates the drive and starts recording the route, motion events, and OBD samples, and keeps the screen awake.
+8. The system shows the live grading screen for the drive type: flag mode for practice (`UC-GRAD-log-infraction`) or the DL-40 checklist (`UC-DL40-conduct-graded-test`).
+9. Use case ends; the drive continues until `UC-SESS-end-drive-session`.
 
 **Extensions:**
 
-- **3a. A real OBD-II device is selected but fails to pair:**
-    - 3a1. The system alerts the parent that the device is unavailable.
-    - 3a2. The parent may retry pairing, switch to simulated/no OBD-II, or proceed without it.
-- **4a. GPS lock cannot be acquired (real GPS selected, no simulated fallback):**
-    - 4a1. The system alerts the parent and offers to retry or switch to simulated GPS.
-- **5a. The app is backgrounded and the OS suspends location/Bluetooth tracking mid-session:**
-    - 5a1. The system resumes tracking on foreground return and marks the gap as an interruption in the session log.
-- **5b. The device has no internet connectivity when the session starts:**
-    - 5b1. The system records locally and queues the session for `UC-SYNC-sync-offline-data` once connectivity returns; the parent is not blocked from starting or continuing the drive.
+- **2a. The grader has no active students:**
+    - 2a1. The system shows an empty state linking to Students (`UC-ACCT-manage-student-roster`); "Begin Drive" stays unavailable.
+- **2b. No drive plans are available to the grader:**
+    - 2b1. The system explains that no plans are available and that the school must create one (`UC-ADMIN-manage-drive-plans`).
+- **2c. The school's reservation integration is active and the grader has appointments today:**
+    - 2c1. The system lists today's appointments; choosing one preselects the matching roster student by external ID, then by permit or license number.
+    - 2c2. If no roster student matches, the system warns and the grader selects one manually. Continue at step 3.
+- **3a. The selected student does not match the chosen appointment (different external ID, permit number, or date of birth):**
+    - 3a1. The server rejects the drive and the system asks the grader to fix the selection.
+- **4a. A DL-40 drive is started without the student's signature:**
+    - 4a1. The system blocks the start and asks the student to sign.
+- **4b. The parent/guardian section is partly filled in:**
+    - 4b1. The system requires all three of relationship (son, daughter, or ward), driver license number, and signature, or none of them.
+- **5a. The adapter fails to connect:**
+    - 5a1. The system reports the failure and the grader may retry or begin without it; a connection is never required.
+- **5b. The device is an iPhone running the web app:**
+    - 5b1. The system explains that iPhone Safari cannot reach Bluetooth or USB adapters and that the native app is needed; the drive can still begin without OBD.
+- **6a. Location is unavailable or permission is denied:**
+    - 6a1. The system explains how to enable location and does not start the drive.
+    - 6a2. Only a platform administrator may start with simulated GPS and a simulated adapter instead, for testing.
+- **7a. Since the list was loaded, the student was archived or is no longer in the grader's scope:**
+    - 7a1. The server refuses, and the system asks the grader to choose an active student from their roster.
+- **7b. There is no internet connection when "Begin Drive" is tapped:**
+    - 7b1. The drive cannot be created, and the system says the device is offline and asks the grader to retry (see `OI-offline` in `UC-SYNC-sync-offline-data`).
+- **7c. The app is backgrounded or the screen locks mid-drive:**
+    - 7c1. The phone may pause GPS; recording resumes when the app returns, and the review map shows the gap as a jump in the route.
 
 **Priority:** High
-**Frequency of Use:** Every practice drive or road test, potentially several times per week per driver.
-**Business Rules:** `BR-parent-own-students`, `BR-org-roster`, `BR-drive-active-student`
+**Frequency of Use:** Every practice drive or road test; several times a week per student.
+**Business Rules:** `BR-drive-active-student`, `BR-parent-own-students`, `BR-org-roster`, `BR-dl40-signatures`, `BR-dl40-minor-statement`, `BR-platform-admin-settings`
 
 **Associated Information:**
 
 | Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
 |---|---|---|---|---|
-| driver profile | Reference | Required | Scoped to the parent's/org's account | Driver Profile |
-| drive plan | Reference | Required, defaults to a standard plan | n/a | Drive Plan |
-| gps source | Enum | real, simulated | n/a | GPS Source |
-| obd device | Enum/Reference | none, simulated, or paired real device | Device data is vehicle-derived, not personal | OBD-II Device |
+| roster student | Reference | Required; active; in the grader's scope | Checked on the server, not just in the UI | Roster Student |
+| drive plan | Reference | Required; active; visible to the grader's role and organization | n/a | Drive Plan |
+| drive type | Reference | Taken from the plan, not chosen separately | n/a | Drive Type |
+| weather, traffic | String | Optional; up to 50 and 30 characters | n/a | Drive Conditions |
+| student signature | PNG image | Required when the drive type requires a DL-40 | Sensitive; scoped like the drive | Signature |
+| parent/guardian relationship | Enum | son, daughter, or ward; all-or-nothing with the two below | Sensitive | Parent/Guardian Statement |
+| parent/guardian license number | String | Up to 40 characters | Sensitive | Parent/Guardian Statement |
+| parent/guardian signature | PNG image | Required if the section is used | Sensitive | Signature |
 
-Failure handling: session creation is all-or-nothing; a mid-session interruption is logged, not discarded — partial data captured before the interruption is retained.
+Drive Tracker today: implemented as described above, including the seeded drive types "Official DL-40" (graded, limited to examiners and instructors) and "Parent Practice" (flag mode).
 
-**Related Use Cases:** `UC-GRAD-log-infraction`; `UC-SESS-end-drive-session`; `UC-HOUR-track-progress` (a completed session should count toward hour requirements); `UC-SYNC-sync-offline-data` (see 5b).
-**Assumptions:** The teen driver does not need their own login — the client confirmed the parent inputs all grading data themselves.
-**Open Issues:** Whether a PWA gives sufficient Bluetooth/GPS access for real OBD-II devices, or whether the team must move to a Capacitor-wrapped native build — the client flagged this as something the team needs to determine, not something already decided. (This is also where the backlog's "Mobile app" item belongs, rather than as its own use case.)
+Failure handling: creating the drive is a single insert; if it fails, nothing is recorded and GPS is not started. Recording failures after that point are queued (`UC-SYNC-sync-offline-data`).
+
+**Related Use Cases:** `UC-ACCT-manage-student-roster`; `UC-OBD-pair-device`; `UC-GRAD-log-infraction`; `UC-DL40-conduct-graded-test`; `UC-SESS-end-drive-session`; `UC-HOUR-track-progress`; `UC-SYNC-sync-offline-data`.
+**Assumptions:** The teen does not need a login; the parent or examiner enters everything.
+**Open Issues:** `OI-offline` (start a drive with no connection). Should parents be able to run a practice DL-40, given the seeded "Official DL-40" type is limited to examiners and instructors? `OI-examiner-device` (tablet layout).
 
 ---
 
 ## DL40 — Digital DL-40 Grade Sheet
 
-### UC-DL40-conduct-graded-test: The instructor conducts a graded road test on the digital DL-40
+### UC-DL40-conduct-graded-test: The examiner grades a road test on the digital DL-40
 
-**UC ID and Name:** `UC-DL40-conduct-graded-test`: Conduct a graded road test
+**UC ID and Name:** `UC-DL40-conduct-graded-test`: Grade a road test on the DL-40
 **Created By:** Team 12
 **Date Created:** 2026-09-25
-**Primary Actor:** instructor/examiner (or parent, for a practice road test)
-**Secondary Actors:** driver, parent/guardian (signs at end)
-**Trigger:** The instructor selects a driver and taps to begin a DL-40 graded test.
-**Description:** The instructor wants to grade a road test electronically, tapping each required maneuver as it happens along the actual route driven — rather than hunting for it on a fixed-order paper form — so that a completed, signed grade sheet can be printed at the end. This is the feature the client identified as the reason Drive Grader exists.
+**Primary Actor:** examiner (or instructor)
+**Secondary Actors:** student (drives); GPS provider
+**Trigger:** The examiner begins a drive whose drive type requires a DL-40 (`UC-SESS-start-drive-session`).
+**Description:** The examiner grades each maneuver of the road test as it happens, in the order of the route actually driven rather than the printed order of the paper form. The system totals the deductions, decides pass or fail, and produces a DL-40 ready to print. This is the feature the client identified as the reason Drive Grader exists.
 
 **Preconditions:**
 
-- PRE-1. The instructor is logged in and authenticated.
-- PRE-2. The DL-40 checklist has been reordered/configured to match the planned route (see `UC-DL40-configure-checklist`).
-- PRE-3. A driver profile and parent/guardian record are available to attach to this test.
+- PRE-1. The examiner is logged in as an examiner or instructor.
+- PRE-2. A DL-40 drive is in progress, started under a plan whose maneuver order matches the route (`UC-DL40-configure-checklist`).
+- PRE-3. The student's DL-40 signature was captured when the drive started.
 
 **Postconditions:**
 
-- POST-1. Every maneuver on the DL-40 checklist has a recorded grade outcome (pass/fail/notes) tied to a timestamp.
-- POST-2. A completed DL-40 grade sheet exists with driver and parent/guardian signatures, ready to print.
+- POST-1. Every maneuver in the plan has a deduction recorded for each graded aspect, or zeros per `BR-dl40-ungraded-maneuver`.
+- POST-2. The drive records its deduction total, its final score (100 minus deductions), pass or fail, and a result code (XFDD, XFVL, or XFDA) when failed.
+- POST-3. A completed DL-40 can be generated as a PDF from the drive review (`UC-DL40-capture-signatures-and-print`).
 
 **Main Success Scenario:**
 
-1. The instructor selects the driver and the pre-configured, route-ordered DL-40 checklist.
-2. The instructor selects the parent/guardian who will sign alongside the driver.
-3. The instructor begins the test; the system displays the reordered checklist item by item.
-4. As each maneuver occurs (parking, merge, lane change, approach-to-corner, traffic signal, traffic sign, left turn, right turn, backing, etc.), the instructor taps the matching item and records the grade.
-5. The system timestamps and records each graded item against the session.
-6. The instructor completes the last maneuver on the checklist.
-7. The system presents the completed grade sheet for driver and parent/guardian signature (see `UC-DL40-capture-signatures-and-print`).
-8. Use case ends.
+1. The system shows the plan's maneuvers in route order. Each maneuver lists its graded aspects (control, observation, position, signal) with the point values that can be deducted.
+2. When a maneuver happens, the examiner taps the point value for an aspect.
+3. The system records the deduction with the time and GPS position, and clears any zero on other aspects of the same maneuver.
+4. The examiner repeats steps 2–3 through the route.
+5. The examiner taps "Finish" and confirms.
+6. The system uploads any queued grades, records zeros for maneuvers with no deductions, removes zeros from maneuvers that have deductions, and totals the deductions.
+7. The system computes the final score and marks the drive passed or failed (XFDD) per `BR-dl40-pass-threshold`.
+8. The system shows the result and opens the drive review, where the DL-40 can be printed.
+9. Use case ends.
 
 **Extensions:**
 
-- **4a. A maneuver happens that isn't next on the reordered checklist (route deviated from plan):**
-    - 4a1. The instructor searches or scrolls to the correct item out of sequence and grades it there.
-    - 4a2. The system still records the correct timestamp and item; checklist order is a navigation aid, not a constraint on grading order.
-- **4b. The instructor taps the wrong item by mistake:**
-    - 4b1. The instructor may undo/correct the most recent grading action before moving on.
-- **6a. The test is ended before every checklist item is graded (e.g., test aborted):**
-    - 6a1. The system marks ungraded items as "not administered" rather than as a pass or fail.
-    - 6a2. The grade sheet indicates the test was incomplete.
+- **2a. A maneuver happens out of the planned order (route deviated):**
+    - 2a1. The examiner scrolls to that maneuver and grades it there; the order guides navigation but does not restrict grading.
+- **2b. The examiner taps the wrong value:**
+    - 2b1. Tapping the same value again clears it; tapping a different value replaces it.
+- **2c. The examiner records 0 for an aspect while another aspect of the same maneuver has a deduction:**
+    - 2c1. The system refuses and explains why (`BR-dl40-ungraded-maneuver`).
+- **2d. The student commits a speed violation or a dangerous action:**
+    - 2d1. The examiner taps "Instant Fail" for that reason and confirms; the dialog warns that this cannot be undone.
+    - 2d2. The system uploads queued data, ends the drive, marks it failed with XFVL or XFDA (`BR-dl40-instant-fail`), and opens the review. Use case ends.
+- **3a. The device is offline:**
+    - 3a1. The deduction is kept on the device and uploaded later (`UC-SYNC-sync-offline-data`); grading continues.
+- **5a. The examiner cancels the confirmation:**
+    - 5a1. The system returns to grading (step 4).
+- **5b. Some maneuvers were never graded because they did not happen (test cut short):**
+    - 5b1. Before confirming, the system lists the maneuvers with no grades and asks the examiner to confirm they were performed without deductions, or to grade them first. (Drive Tracker today records them as zero deductions without asking, which could pass a student on maneuvers never driven.)
+- **6a. Finishing fails because the device is offline or the server errors:**
+    - 6a1. The system reports the failure; the drive stays in progress with all grades kept, and the examiner retries.
+- **8a. The examiner later corrects a grade:**
+    - 8a1. See `UC-SESS-edit-drive-grades`; the score is recalculated when it is saved again.
 
 **Priority:** High
-**Frequency of Use:** Once per official road test; lower volume than practice-drive grading but the feature the client most wants to see working.
-**Business Rules:** `BR-dl40-official-form`, `BR-dl40-electronic-grading`, `BR-dl40-signatures`, `BR-road-test-route-maneuvers`, `BR-org-roster`
+**Frequency of Use:** Once per road test; fewer than practice drives, but the feature the client most wants working.
+**Business Rules:** `BR-dl40-official-form`, `BR-dl40-electronic-grading`, `BR-dl40-maneuver-deductions`, `BR-dl40-printed-points`, `BR-dl40-deduction-total`, `BR-dl40-pass-threshold`, `BR-dl40-instant-fail`, `BR-dl40-ungraded-maneuver`, `BR-road-test-route-maneuvers`, `BR-org-roster`
 
 **Associated Information:**
 
 | Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
 |---|---|---|---|---|
-| checklist order | Ordered list of references | Must contain every required DL-40 item exactly once | Instructor-configurable per route | DL-40 Checklist |
-| grade outcome | Enum | pass, fail, not administered | Part of an official test record | Grade Outcome |
-| signatures | Image/binary | Required before print (see `UC-DL40-capture-signatures-and-print`) | Signature data is sensitive; access scoped to the org | Signature |
+| maneuver order | Ordered list of maneuver references | Comes from the drive plan | Set by examiners/instructors when creating the plan | DL-40 Checklist |
+| aspect deduction | Integer | Must be one of that maneuver and aspect's values per `BR-dl40-printed-points` | Part of an official test record | Deduction |
+| grade time and position | Timestamp, latitude/longitude | Captured automatically | Minor's location | Grade |
+| final score | Integer | 100 minus the deduction total | Official result | Final Score |
+| result code | Enum | XFDD, XFVL, XFDA, or none when passed | Official result | Result Code |
 
-Failure handling: grade sheet is built incrementally as each item is tapped; a crash mid-test does not lose already-graded items, but the session must be resumed or explicitly marked incomplete rather than silently left open.
+Display: maneuvers appear in plan order and collapse once every aspect is graded; the bottom bar holds Instant Fail (speed violation, dangerous action) and Finish.
 
-**Related Use Cases:** `UC-DL40-configure-checklist` (must happen first); `UC-DL40-capture-signatures-and-print` (happens last); `UC-DL40-suggest-route` (an upstream aid, not a dependency); `UC-SESS-start-drive-session` (a DL-40 test runs inside a session).
-**Assumptions:** The required maneuver set (three left turns, three right turns, two stop signs, two lights, two approach-to-corners, parallel park, reverse, etc.) is fixed by the state form and not something the app invents per route.
-**Open Issues:** None from the meeting — this is the most concretely specified feature the client described. Confirm the exact full DL-40 item list and required counts against the actual state form before building the checklist data model.
+Drive Tracker today: implemented as described, except 5b. Its seeded deduction values (2/1/0, with one 3/2/0) disagree with the form; the values to build against are `BR-dl40-printed-points`.
+
+Failure handling: each grade is saved as it is tapped, so a crash or reload does not lose earlier grades; the drive stays in progress until Finish or Instant Fail succeeds.
+
+**Related Use Cases:** `UC-SESS-start-drive-session` (captures signatures and starts the drive); `UC-DL40-configure-checklist` (plan order); `UC-DL40-capture-signatures-and-print` (PDF); `UC-SESS-edit-drive-grades`; `UC-DL40-suggest-route`.
+**Assumptions:** The set of graded maneuvers is fixed by the state form and the route requirements (`BR-road-test-route-maneuvers`), not invented per route.
+**Open Issues:** `AS-dps-approval-stands` — confirm DPS approval covers the app's printed format. `OI-dps-log-format`. Confirm 5b with Eric: should finishing with ungraded maneuvers be allowed at all?
 
 ---
 
@@ -443,51 +657,69 @@ Failure handling: grade sheet is built incrementally as each item is tapped; a c
 
 ### UC-HOUR-track-progress: The parent views progress toward required hours
 
-**UC ID and Name:** `UC-HOUR-track-progress`: Track progress toward required hours
+**UC ID and Name:** `UC-HOUR-track-progress`: View progress toward required hours
 **Created By:** Team 12
 **Date Created:** 2026-09-25
 **Primary Actor:** parent
 **Secondary Actors:** none
-**Trigger:** The parent opens the driver's progress view.
-**Description:** The parent wants to see how many of the required hours their teen has completed — general driving, behind-the-wheel instruction, and observation — so they know how close the teen is to meeting Texas's 44-hour requirement before testing.
+**Trigger:** The parent opens a student's hours view.
+**Description:** The parent wants to see how many of Texas's required hours their teen has completed in each category, and how many remain, so they know how close the teen is to being eligible for the road test.
 
 **Preconditions:**
 
-- PRE-1. The parent is logged in and authenticated.
-- PRE-2. At least one completed drive session exists for the driver, or the driver has zero logged hours (still a valid, empty state).
+- PRE-1. The parent is logged in.
+- PRE-2. The selected student is on the parent's roster.
 
 **Postconditions:**
 
-- POST-1. The parent sees hours completed and hours remaining in each of the three categories (general, instruction, observation), against the configured target for each.
+- POST-1. The parent sees, for each hour category, the hours completed, the hours remaining, and the percentage complete, plus the total against the required total.
+- POST-2. Nothing is changed; this is read-only.
 
 **Main Success Scenario:**
 
-1. The parent opens the driver's progress view.
-2. The system totals logged session time by category (general/instruction/observation) for that driver.
-3. The system displays completed hours, remaining hours, and percentage complete per category, plus the combined total against the 44-hour requirement.
+1. The parent opens the hours view and selects a student.
+2. The system adds up the durations of that student's finished, non-deleted drives in each hour category.
+3. The system shows completed hours, remaining hours, and percentage complete for each category, and the combined total against `BR-ptde-total-hours`.
 4. Use case ends.
 
 **Extensions:**
 
-- **2a. A session's category was never set or is ambiguous:**
-    - 2a1. The system counts it toward "general" by default and flags it so the parent can recategorize it.
+- **1a. The parent has more than one student:**
+    - 1a1. The system asks which student to show and never combines students' hours (`BR-parent-multiple-students`).
+- **1b. The parent tries to open a student who is not on their roster:**
+    - 1b1. The server refuses; nothing about that student is shown.
+- **2a. A drive has no hour category:**
+    - 2a1. The system counts it as general driving and marks it so the parent can recategorize it.
+- **2b. A drive is still in progress or was deleted:**
+    - 2b1. The system leaves it out of the totals.
+- **2c. A category's requirement is already met:**
+    - 2c1. The system shows the category as complete, with 0 remaining, never a negative number.
+- **3a. The student has no finished drives:**
+    - 3a1. The system shows 0 hours and 0% for every category, which is a valid result, not an error.
+- **3b. The totals cannot be computed (server error):**
+    - 3b1. The system shows an error rather than a wrong number; starting a drive is not affected.
 
-**Priority:** High
-**Frequency of Use:** Frequent — checked after most sessions.
-**Business Rules:** `BR-ptde-required-hours`, `BR-ptde-total-hours`, `BR-parent-own-students`
+**Priority:** High — but the first `FEAT-training-hours-log` item to cut if time runs short, per vision-and-scope.
+**Frequency of Use:** Frequent — after most drives.
+**Business Rules:** `BR-ptde-required-hours`, `BR-ptde-total-hours`, `BR-parent-own-students`, `BR-parent-multiple-students`
 
 **Associated Information:**
 
 | Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
 |---|---|---|---|---|
-| session category | Enum | general, instruction, observation | n/a | Session Category |
-| target hours per category | Number | Configurable; defaults per `BR-ptde-required-hours` | Org-level, not driver-level, unless overridden | Hour Requirement |
+| hour category | Enum | instruction, observation, general driving (per `BR-ptde-required-hours`) | Set by the grader | Hour Category |
+| drive duration | Minutes | From the drive's start to its end; computed by the server | n/a | Drive Duration |
+| required hours per category | Number | Defaults per `BR-ptde-required-hours`; configurable (`UC-HOUR-configure-requirements`) | Set by the school, not the parent | Hour Requirement |
 
-Failure handling: this is a read-only aggregation; a failure to compute it should show a clear error rather than a wrong number, and never blocks the ability to start a new session.
+Display: one progress bar per category, then the total. Show hours to one decimal place.
 
-**Related Use Cases:** `UC-SESS-end-drive-session` (writes the hours this view reads); `UC-HOUR-configure-requirements` (sets the targets referenced here). Note: the backlog's "Progress Meter" item is this use case's UI, not a separate use case.
-**Assumptions:** None beyond `BR-ptde-required-hours` and `BR-ptde-total-hours` as stated by the client.
-**Open Issues:** The client suggested modeling target hours as configurable variables per category rather than hardcoding 30/7/7 — confirm whether that configurability is org-level, state-level, or both, since Texas-specific rules may not generalize if the app is ever used outside Texas.
+Drive Tracker today: no hours feature. Each finished drive already stores `durationMinutes`, but its only classification is its drive type ("Official DL-40" or "Parent Practice"), which does not map to the state's hour categories. The existing `GET /grades/progress/:studentID` endpoint reports grade averages by maneuver (`FEAT-progress-history`, `UC-GRAD-view-progress-history`), not hours, and looks students up by the legacy login ID rather than the roster ID.
+
+Failure handling: read-only; failure shows an error and changes nothing.
+
+**Related Use Cases:** `UC-SESS-end-drive-session` (writes the durations); `UC-HOUR-configure-requirements` (sets the targets); `UC-HOUR-export-hours-log` (produces the log the family presents). The backlog's "Progress Meter" is this use case's display, not a separate use case.
+**Assumptions:** A drive that ended in a failed road test still counts toward hours. Confirm.
+**Open Issues:** How is a drive's hour category chosen: by drive type, by the grader at start, or afterward? Observation hours are time the teen watches rather than drives — are they recorded as drives at all, or entered by hand? `FEAT-training-hours-log` also lists night practice, and vision-and-scope mentions 10 required night hours, but `BR-ptde-required-hours` does not include night hours until the state requirement is confirmed. Are required hours configured per school, per state, or both?
 
 ---
 
@@ -502,9 +734,9 @@ _The verification that catches the most: read the main success scenario aloud to
 _**Checklist for each use case:** Does the name start with a verb? Can the system test every precondition? Does every step alternate actor and system? Is there at least one extension per step that can fail? Does every business rule appear as an identifier only? Could a tester write test cases from this without asking you anything?_
 
 **What's left before this document is stable:**
-- The use cases listed in Section 3 but not yet specified in Section 4 (see that list above) — use the six worked examples as the pattern, especially for extensions.
-- `UC-DL40-suggest-route` and `UC-SESS-select-map-layer` come straight from the 28-Oct backlog and haven't been run past Eric yet — confirm before specifying them in full, so the team doesn't spend a write-up on something that gets cut. `UC-MON-observe-live-session` was raised by Eric on 2026-09-29 as an idea; confirm whether he wants it in the MVP before specifying it.
-- `BR-password-complexity`, `BR-reset-token-expiry`, and `BR-max-students-per-account` are cited above but not yet defined in [business-rules.md](business-rules.md); add them there (the student cap is waiting on Eric to name N).
-- Reconciling the Section 1.2 area list against a formal `FEAT-*` list in vision-and-scope.md.
-- Confirming the exact DL-40 item list against the real state form.
-- The three items flagged in Section 1.2 as not belonging in this document at all (staging indicator, generic UI/UX, Tailscale) should move to wherever the team tracks architecture/ops decisions, so they don't get lost just because they're off this list.
+- Specify the use cases marked "Listed" in Section 3.2. Start with the ones Drive Tracker already does (`UC-SESS-end-drive-session`, `UC-GRAD-log-infraction`, `UC-GRAD-review-infraction-log`, `UC-OBD-*`, `UC-DL40-configure-checklist`, `UC-DL40-capture-signatures-and-print`), since the code answers most questions, then the client benchmark items (`UC-SYNC-check-system-status`, `UC-SESS-filter-session-history`, `UC-SESS-generate-drive-report`, `UC-SESS-select-map-layer`, `UC-SETT-*`).
+- `UC-DL40-suggest-route` has no `FEAT-*` entry. Either add one to vision-and-scope with the client's agreement, or drop the use case.
+- Add `BR-password-complexity` and `BR-reset-token-expiry` to [business-rules.md](business-rules.md). `BR-max-students-per-account` waits on Eric naming N.
+- Raise the access-control gap in Section 3.3 with the team; it affects every drive-reading use case and is a privacy risk for minors' location data (`RI-minor-location-data`).
+- Confirm with Eric: `OI-offline` (start a drive with no connection); whether parents may run a practice DL-40; extension 5b of `UC-DL40-conduct-graded-test`; the hour-category questions in `UC-HOUR-track-progress`.
+- Mirror the open issues above into [OPEN-ISSUES.md](OPEN-ISSUES.md).
