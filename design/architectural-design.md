@@ -3,7 +3,7 @@
 **Project:** Drive grader
 **Team:** Team 12
 **Client:** THE Eric Brown
-**Version:** 0.1
+**Version:** 0.2
 
 ---
 
@@ -35,6 +35,7 @@ _[These are slugs, like every other identifier in your project, so an inserted d
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 0.1 | | | Initial draft for Checkpoint 1 |
+| 0.2 | 2026-10-02 | Team 12 | Section 9: architecturally significant requirements and key decisions drawn from the client's Drive Tracker application |
 
 ---
 
@@ -261,7 +262,13 @@ _List three to six, ranked by importance to your client times difficulty to achi
 
 | Rank | Requirement | Specification handles | Importance × difficulty | Drives |
 |---|---|---|---|---|
-| 1 | _Payroll data confidential_ | _`SEC-payroll-auth`_ | _High × Medium_ | _`KD-payment-isolated`_ |
+| 1 | Users see only their own organization's and students' data | `SEC-authorization`, `SEC-driver-data`, `SCA-organizations` | High × Medium | `KD-org-row-tenancy`, `KD-own-accounts` |
+| 2 | A drive survives losing the network or GPS mid-drive | `ROB-external`, `ROB-gps`, `ROB-failure-handling`, `UC-SYNC-sync-offline-data` | High × High | `KD-offline-first-capture` |
+| 3 | OBD2 vehicle data reaches the app on the devices graders use | `INT-obd2`, `ROB-obd2`, `CO-pwa`, `CO-capacitor` | High × High | `KD-obd-adapter-layer` |
+| 4 | Logging an infraction does not distract the grader | `SAF-interaction`, `PER-infraction` | High × Medium | `KD-offline-first-capture` |
+| 5 | Build on the existing application and its deployment pipeline | `CO-existing-application`, `CO-github-actions` | Medium × Low | `KD-deployment-shape` |
+
+`AVL-uptime` and `SCA-concurrent-users` are not listed: the client's existing hosting meets them, and neither forces a structural choice.
 
 ### 9.2 Key decisions
 
@@ -269,17 +276,55 @@ _[One entry per key decision (`KD-*`), in the form below; it is what the wider i
 
 _A decision without a **rejected alternative** is not a decision, it is a description. Name what you did not do and why not, so the next person does not redo the argument._
 
-_A decision that turns out wrong is not deleted or rewritten. Mark it **Superseded by `KD-<new-slug>`** and write the new decision as its own entry, so the reasoning behind both stays readable._
+_A decision that turns out wrong is not deleted or rewritten. Mark it **Superseded by `KD-<new-slug>`** and write the new decision as its own entry, so the reasoning behind both stays readable.]_
 
-_Example:]_
+**`KD-deployment-shape`: one repository, two deployables (static UI and API), one shared database.** Accepted (inherited from proof of concept).
 
-**`KD-deployment-shape`: one deployable.** _Accepted._
+- **Driving requirements:** `CO-existing-application`; `CO-github-actions`; `CO-capacitor`.
+- **Context:** The client's Drive Tracker repository holds the API and the front end together, and one push to `stg` deploys both through the existing GitHub Actions workflow to the client's Docker Swarm host. The database is a MySQL instance on the client's cluster. Expected load is in the low hundreds of users (`SCA-concurrent-users`).
+- **Decision:** The Quasar front end is built to static files and served by its own container. The Node.js API runs in its own container. Both live in one repository and deploy together from one push, against one MySQL database.
+- **Rejected:** (a) Bundling the front end into the API's package as a single deployable. The Capacitor build needs the front end as a standalone bundle that calls the API from the device, and the client's pipeline already ships the two separately. (b) Splitting the API into services by area (sessions, grading, administration). That would add network calls, more deployments, and failure modes between them, to solve a scaling problem this user count does not have.
+- **Trade-off:** The UI and the API can drift apart if only one of the two deploys succeeds, so a release is not finished until both containers report the same version.
 
-- **Driving requirements:** _`CO-no-dedicated-ops`; `AVL-lunch-window`._
-- **Context:** _About 400 patrons, one lunch peak a day, and nobody on the client side who can operate infrastructure._
-- **Decision:** _The front end is built into the back end's package and ships as one container to one host, with one managed database._
-- **Rejected:** _Separate services for ordering, menu, and delivery. They would add network calls, three deployments, and failure modes between them, to solve a scaling problem 400 users do not have._
-- **Trade-off:** _The system scales only as a whole, and a bad deploy takes all of it down._
+**`KD-own-accounts`: Drive Grader issues its own credentials.** Accepted (inherited from proof of concept).
+
+- **Driving requirements:** `SEC-account`; `SEC-permissions`.
+- **Context:** Users are parents, students, instructors, and examiners from many unrelated households and driving schools. There is no shared identity provider among them, and the client does not run one.
+- **Decision:** The API stores password hashes and issues signed, expiring tokens. Each token carries the user's role and whether they are a platform administrator, and the API checks both on every protected route.
+- **Rejected:** An external identity provider or school sign-on. Parents have no common provider, and adding one would put a third-party dependency in front of every drive.
+- **Trade-off:** The team owns password reset (`UC-ACCT-reset-password`), credential storage, and the signing secret.
+
+**`KD-org-row-tenancy`: one database, with every tenant-owned row scoped to its organization.** Accepted (inherited from proof of concept).
+
+- **Driving requirements:** `SCA-organizations`; `SEC-driver-data`; `SEC-authorization`.
+- **Context:** Several driving schools and many families share one deployment. A parent must see only their own students, and an organization only its own drives.
+- **Decision:** All organizations share one database. Every tenant-owned row carries its organization, and parent access is further limited to the students on that parent's roster. The API applies these scopes in the service layer, not in the front end.
+- **Rejected:** A separate database or schema per organization. It would multiply migrations and operational work on the client's cluster, and no requirement demands that level of isolation.
+- **Trade-off:** One query that forgets its scope leaks data across tenants, so every protected function needs an authorization test with an account from another organization (`SEC-authorization`; see section 10.2).
+
+**`KD-offline-first-capture`: drive data is written on the device first and synced to the API when the network allows.** Accepted (inherited from proof of concept).
+
+- **Driving requirements:** `ROB-external`; `ROB-gps`; `PER-infraction`; `SAF-interaction`; `UC-SYNC-sync-offline-data`.
+- **Context:** Drives happen in moving cars, where mobile coverage drops without warning. A grader logs infractions and maneuvers while supervising a teenage driver and cannot stop to retry a failed request.
+- **Decision:** During an active drive the front end queues route points, grades, motion events, and OBD2 samples in on-device storage, and uploads them when connectivity returns. The API accepts queued data for an existing session.
+- **Rejected:** Online-only capture, where each grade or route point is sent immediately. A dropped connection mid-maneuver would either lose the record or make the grader retry it while the car is moving.
+- **Trade-off:** On-device storage is limited in size and can be cleared by the operating system before it syncs. Starting a session still needs the network, because the API assigns the session's identifier. Both are to be recorded as debt in section 11 at Checkpoint 2.
+
+**`KD-obd-adapter-layer`: vehicle data goes through one interface with swappable transports, and iOS uses the native build.** Accepted (inherited from proof of concept).
+
+- **Driving requirements:** `INT-obd2`; `ROB-obd2`; `CO-pwa`; `CO-capacitor`.
+- **Context:** The OBD2 adapters connect over Bluetooth. Android browsers can reach them from the PWA, but iOS browsers and home-screen PWAs cannot open Bluetooth at all. The client's near-term milestone is a live brake signal in the app.
+- **Decision:** The front end talks to the vehicle through a single connection interface, with interchangeable transports for Web Bluetooth, USB serial, native Bluetooth through Capacitor, and a simulator. The PWA uses whichever transport the browser supports. iOS users need the Capacitor build for OBD2, and everything else works without OBD2 (`ROB-obd2`).
+- **Rejected:** (a) PWA only, which leaves every iOS user without vehicle data. (b) Native apps only, which drops the install-free PWA tier the client described for GPS-only use.
+- **Trade-off:** Two builds to test, and OBD2 features differ by platform. The simulator lets the team test grading without a car, but it does not prove that a real adapter works.
+
+**`KD-integration-isolated`: only the integration component talks to an organization's external scheduling and student system.** Proposed; the team confirms whether it is in scope this semester.
+
+- **Driving requirements:** `ROB-external`; `INT-integrations`; `SI-SCHOOL-INTEGRATION`; `DE-school-integration`.
+- **Context:** An organization can configure its own scheduling and student system. Drive Grader pulls students and appointments from it and pushes finished drive results back, using a per-organization address and key.
+- **Decision:** One API component owns every call to that system, its credentials, and the translation of its data into Drive Grader's. When the system fails or does not answer, the component returns an empty result instead of an error, so drives and grading keep working.
+- **Rejected:** Calling the external system from each feature that needs its data. That spreads its credentials and data formats across the codebase, and one outage would break several features.
+- **Trade-off:** A silent empty result can hide an outage, so a failed call must still be visible to an organization administrator, for example through the connection test.
 
 ## 10. Quality Requirements
 
