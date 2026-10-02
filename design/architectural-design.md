@@ -3,7 +3,7 @@
 **Project:** Drive grader
 **Team:** Team 12
 **Client:** THE Eric Brown
-**Version:** 0.1
+**Version:** 0.2
 
 ---
 
@@ -35,6 +35,7 @@ _[These are slugs, like every other identifier in your project, so an inserted d
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 0.1 | | | Initial draft for Checkpoint 1 |
+| 0.2 | 2026-10-02 | Mameo007 | First draft of section 8, from the client's proof of concept |
 
 ---
 
@@ -230,6 +231,14 @@ _[Four short paragraphs. The last three each cite the `SEC-*` requirement they a
 
 _Secrets (passwords, API keys, connection strings) never appear in this document or in the repository. Say where they will live, not what they are.]_
 
+**Trust boundary.** The API is the trust boundary. The browser, the installed PWA, the Capacitor shell, OpenStreetMap, an optional school HTTP integration, and the phone's GPS, motion, and OBD2 adapters sit outside it. Every `/api` path is authenticated and authorized except `/api/health`, `/api/auth/login`, and `/api/auth/register`. A login check on the screen is outside that line.
+
+**Authentication.** The API issues its own JWT after an email and password check (`SEC-account`). The signing secret is the `JWT_SECRET` environment variable, and the process refuses to start when that variable is missing.
+
+**Authorization.** The token carries `examiner`, `instructor`, `parent`, or `student`, or the platform-admin flag (`SEC-permissions`, `SEC-authorization`). A student reads their own drives; an examiner, instructor, or parent reads drives they conducted; a platform admin reads every drive; a roster row is visible only inside its owner or organization (`SEC-driver-data`). The same filter applies on every read and write of a drive, grade, roster row, or signature.
+
+**Sensitive data.** The database holds names, emails, password hashes, dates of birth, permit and license numbers, parent or guardian license numbers and signature images, GPS breadcrumbs, grades, and organization license numbers. The signed-in user's app receives the rows allowed for that caller, and map tiles send coordinates to OpenStreetMap. A configured school integration sends student and appointment records in; its API key lives on that organization's integration row. How long any of this is kept, and how it is disposed of, is section 7.4 of the [specification](../requirements/software-requirements-specification.md). Password hashes are removed before a user object is returned. The signing secret, the database password, and integration API keys live in the environment or on that integration row.
+
 ### 8.2 Other concepts
 
 _Due: Checkpoint 1, a subsection for every concept in the table below; then kept current, adding the file that shows each rule once code exists and a new concept whenever one appears. [Anything every component must do the same way. Your agent starts every session with no memory of the last, so a convention that is not written here gets reinvented each time. Write every concept now, while each is still cheap to choose; the last column says when a missing one would start to hurt._
@@ -251,7 +260,29 @@ _One short subsection each: the rule in one sentence, why, and the file that sho
 
 _Example, from the Cafeteria Ordering System:_
 
-**8.2.1 Error handling.** _Every endpoint returns `{ "ok": false, "error": { "code", "message" } }` on failure, produced by one exception handler; no controller builds its own error body, and no response carries an exception's own message. Why: the ordering screen and the menu screen share one error display, and an exception's message can reveal the database behind it. Shown in: `ApiExceptionHandler`._
+_**8.2.1 Error handling.** Every endpoint returns `{ "ok": false, "error": { "code", "message" } }` on failure, produced by one exception handler; no controller builds its own error body, and no response carries an exception's own message. Why: the ordering screen and the menu screen share one error display, and an exception's message can reveal the database behind it. Shown in: `ApiExceptionHandler`._
+
+File paths below are in the client's proof of concept (`drive-tracker`), which this system builds on (`CO-existing-application`). They are the current picture of each rule.
+
+**8.2.1 Error handling.** A failed request is an `Error` carrying a `statusCode`, thrown from the service and rendered by Fastify's sensible plugin. Why: every screen shares that error path, and a database exception stays out of the response text. A missing or expired token is 401, and the client clears the stored token and returns to login; the wrong role is 403. Missing GPS, motion, or OBD2 stays on the device (`ROB-gps`, `ROB-obd2`). A school integration that returns the wrong shape is 502. Shown in: `api/src/services/AuthService.js`, `frontend/src/boot/axios.js`.
+
+**8.2.2 Time and time zones.** Instants are UTC from the API process clock, and calendar dates (date of birth, appointment date) are `YYYY-MM-DD` with no zone; the UI shows instants in the device's local zone. Why: a date of birth run through local midnight falls on the wrong day. A test cannot set the clock yet. Shown in: `api/src/services/SessionService.js`, `api/src/services/RosterService.js` (`normalizeDate`).
+
+**8.2.3 API conventions.** Resources are `/api/<resource>` in kebab-case, JSON in and out, with an integer id in the path. One resource is returned as the object; a paged list is `{ data, total, page, limit }`; login and register return `{ user, token }`. Why: the next route otherwise invents another envelope. Shown in: `api/src/app.js`, `api/src/services/SessionService.js` (`listForUser`).
+
+**8.2.4 Code conventions.** Frontend files are Vue 3 single-file components, Quasar components, Pinia stores, and Quasar boot files. Backend files are JavaScript ES modules: a Fastify route or plugin, and a service class that receives the Knex connection (`CO-frontend-framework`, `CO-backend`). Why: that is the shape of the proof of concept, and a second HTTP client or database library would split it. Shown in: `frontend/src/stores/auth.js`, `api/src/services/AuthService.js`.
+
+**8.2.5 Validation.** The route's JSON Schema rejects a body of the wrong shape, and the service normalizer is the check that counts for a domain rule. Why: the schema cannot say that the parent or guardian section is all-or-nothing. A value that passes the schema and fails the normalizer is still rejected. Shown in: `api/src/routes/students.js`, `api/src/services/RosterService.js` (`normalizeRosterStudent`), `api/src/routes/sessions.js`.
+
+**8.2.6 Configuration and secrets.** Development and production differ only by environment variables: the database connection, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CORS_ORIGIN`, `PORT`, and the frontend `API_URL`. Production starts only when `JWT_SECRET` is set. Why: those are the values that change between a laptop and the deployed host. This document names the variables. Shown in: `api/knexfile.js`, `api/src/app.js`, `frontend/quasar.config.js`.
+
+**8.2.7 Logging.** Application logs go through Fastify's logger, pretty-printed only when `NODE_ENV` is `development`. Log database connectivity and a failed integration call. A log line never includes a password, a token, a signature image, a license or permit number, or an integration API key. Why: the request that explains a bug is also the request that carries those values. Shown in: `api/src/app.js`.
+
+**8.2.8 Persistence and concurrency.** One Knex connection talks to MySQL. A delete sets `deletedAt`, and reads omit those rows. A service method that writes more than one table opens and commits its own transaction. Two saves of the same session both succeed, and the later update is the one stored. Why: two people can grade or edit one drive, and the proof of concept has no row version. Shown in: `api/src/plugins/database.js`, `api/src/utils/audit.js`.
+
+**8.2.9 Auditing.** Who last wrote a row is `createdBy` and `updatedBy` on that row, together with `createdAt`, `updatedAt`, and `deletedAt`. Creating a drive copies the student's name, date of birth, permit number, and school onto the session. Why: a later roster edit would otherwise rewrite the drive that was graded. The stamps keep the latest writer, not the previous value. Shown in: `api/src/utils/audit.js`, `sessionIdentityFromRosterAndAppointment` in `api/src/routes/sessions.js`.
+
+**8.2.10 Testing.** A rule about which rows a caller may see is a Node built-in test (`node --test`) against MySQL, inside a transaction that rolls back. Why: that rule can break in a pull request with no visible change on the screen. The proof of concept has no frontend test suite. Shown in: `api/test/roster-service.test.js`.
 
 ## 9. Architecture Decisions
 
