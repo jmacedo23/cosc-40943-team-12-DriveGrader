@@ -1,8 +1,8 @@
 # Architectural Design
 
-**Project:** _[Your project name]_
-**Team:** _[Team NN]_
-**Client:** _[Client name and organization]_
+**Project:** Drive grader
+**Team:** Team 12
+**Client:** THE Eric Brown
 **Version:** 0.1
 
 ---
