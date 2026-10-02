@@ -44,7 +44,7 @@ _Due: Checkpoint 1._
 
 ### 1.1 Requirements overview
 
-_[Your [specification](../requirements/software-requirements-specification.md) and your [use cases](../requirements/use-cases.md) are the requirements overview. Link them here; do not summarize them.]_
+The requirements overview is defined by the [Software Requirements Specification](../requirements/software-requirements-specification.md) and the [Use Cases](../requirements/use-cases.md).
 
 ### 1.2 Quality goals
 
