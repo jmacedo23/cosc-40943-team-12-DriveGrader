@@ -61,7 +61,7 @@ _These are usually the top rows of the table in section 9.1, and the two do diff
 
 ### 1.3 Stakeholders
 
-_[Your stakeholders are profiled in section 3.1 of [vision and scope](../requirements/vision-and-scope.md). Link it here; do not copy it.]_
+The stakeholder profiles are defined in section 3.1 of the Vision and Scope (../requirements/vision-and-scope.md) document.
 
 ## 2. Architecture Constraints
 
