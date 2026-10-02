@@ -52,13 +52,12 @@ _[The **three** quality attributes that most shape your system, in priority orde
 
 _These are usually the top rows of the table in section 9.1, and the two do different jobs. Here, say why each goal matters to your client. There, say which decision it forces._
 
-_Example, from the Cafeteria Ordering System:]_
-
 | Priority | Quality goal | Specification handles | Why it shapes the architecture |
 |---|---|---|---|
-| 1 | _Payroll data stays confidential_ | _`SEC-payroll-auth`, `SEC-employee-own-orders`_ | _Orders are paid by payroll deduction, so an order record carries an employee's pay account. A leak is a legal problem, not a bug._ |
-| 2 | _Orders placed before 10:00 are not lost_ | _`ROB-order-persisted`, `AVL-lunch-window`_ | _The lunch rush is the only load that matters, and a lost order is a hungry employee with a payroll charge._ |
-| 3 | _Cafeteria staff can run it without IT_ | _`CO-no-dedicated-ops`, `MNT-menu-self-service`_ | _Nobody on the cafeteria side can deploy, restart, or patch anything._ |
+| 1 | Safe, low-distraction active-drive use | `SAF-interaction`, `PER-drive-tracking` | The app operates during driving instruction, so tracking must continue without unnecessary interaction while the vehicle is moving. This requires the active-drive workflow and device-location handling to be designed around safety first. |
+| 2 | Intuitive mobile-first usability | `USE-mobile-first`, `USE-responsive`, `USE-intuitive` | Parents, students, and examiners need to start drives, log infractions, and review results quickly on mobile devices. The client’s success criterion—90% of representative users completing primary tasks without help—makes a simple responsive interface a system-wide priority. |
+| 3 | Protection of driver and drive data | `SEC-account`, `SEC-permissions`, `SEC-driver-data`, `SEC-authorization` | The system stores student profiles, driving records, routes, and grading data. Account-based authorization and organization-level data separation must therefore be built into the application and API rather than added later. |
+
 
 ### 1.3 Stakeholders
 
