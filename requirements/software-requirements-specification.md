@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.1
+**Version:** 0.2
 
 ---
 
@@ -41,6 +41,7 @@ Requirements cited from other documents retain their own identifiers, such as `U
 | Date       | Version | Description   | Author  |
 | ---------- | ------- | ------------- | ------- |
 | 2026-09-23 | 0.1     | Initial draft | Team 12 |
+| 2026-10-02 | 0.2     | Added `SI-SCHOOL-INTEGRATION` and `DE-school-integration` for the organization scheduling and student system | Team 12 |
 
 ---
 
@@ -234,6 +235,8 @@ Specific supported browsers, browser versions, operating-system versions, and mi
 **DE-github:** Development depends on access to the client's GitHub organization.
 
 **DE-github-actions:** Automated staging deployment depends on the existing GitHub Actions configuration.
+
+**DE-school-integration:** Student synchronization, appointment lookup, and drive-result delivery for an organization depend on that organization's external scheduling and student system being configured and reachable.
 
 **DE-ai:** AI functionality is optional and depends on the team identifying a useful application for AI within Drive Grader.
 
@@ -696,6 +699,12 @@ OBD Home is not currently established as a required production dependency.
 **SI-GITHUB:** The project source code shall be maintained within the client's GitHub organization.
 
 **SI-GITHUB-ACTIONS:** GitHub Actions shall support the existing automated deployment process to the staging environment where applicable.
+
+### Organization scheduling and student system
+
+**SI-SCHOOL-INTEGRATION:** Where an organization has configured an external scheduling and student system, the system shall retrieve that organization's students and appointments from it and send completed drive results to it.
+
+The existing application connects to this system using an address and key configured per organization. The external system's full interface is [TBD].
 
 ### AI
 
