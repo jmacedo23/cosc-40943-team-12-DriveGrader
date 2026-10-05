@@ -303,7 +303,7 @@ _[Four short paragraphs. The last three each cite the `SEC-*` requirement they a
 
 _Secrets (passwords, API keys, connection strings) never appear in this document or in the repository. Say where they will live, not what they are.]_
 
-**Trust boundary.** The API is the trust boundary. The browser, the installed PWA, the Capacitor shell, OpenStreetMap, an optional school HTTP integration, and the phone's GPS, motion, and OBD2 adapters sit outside it. Every `/api` path is authenticated and authorized except `/api/health`, `/api/auth/login`, and `/api/auth/register`. A login check on the screen is outside that line.
+**Trust boundary.** The API is the trust boundary. The browser, the installed PWA, the Capacitor shell, OpenStreetMap, an optional school HTTP integration, and the phone's GPS, motion, and OBD2 adapters sit outside it. Every API request is authenticated and authorized, except unauthenticated operations that must stay public (health checks and credential exchange for login or registration). A login check on the screen is outside that line.
 
 **Authentication.** The API issues its own JWT after an email and password check (`SEC-account`). The signing secret is the `JWT_SECRET` environment variable, and the process refuses to start when that variable is missing.
 
