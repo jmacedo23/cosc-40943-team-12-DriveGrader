@@ -3,7 +3,7 @@
 **Project:** Drive grader
 **Team:** Team 12
 **Client:** THE Eric Brown
-**Version:** 0.3
+**Version:** 0.4
 
 ---
 
@@ -37,6 +37,7 @@ _[These are slugs, like every other identifier in your project, so an inserted d
 | 0.1 | | | Initial draft for Checkpoint 1 |
 | 0.2 | 2026-10-02 | Mameo007 | First draft of section 8, from the client's proof of concept |
 | 0.3 | 2026-10-02 | Team 12 | Section 9: architecturally significant requirements and key decisions drawn from the client's Drive Tracker application |
+| 0.4 | 2026-10-05 | Kaylee | Section 3: cite `SI-SCHOOL-INTEGRATION` and `DE-school-integration` for the reservation system |
 
 ---
 
@@ -148,7 +149,7 @@ C4Context
     Rel(sensors, dg, "Supplies location and motion")
     Rel(obd, dg, "Supplies vehicle data")
     Rel(dg, osm, "Loads map tiles")
-    Rel(dg, reservations, "Reads appointments and students")
+    Rel(dg, reservations, "Reads students and appointments, sends completed results")
     Rel(dg, ai, "May request drive analysis")
 ```
 
@@ -161,10 +162,10 @@ Each outside box has an identifier in the specification:
 | Mobile device sensors | `SI-GPS`, `SI-ACCELEROMETER`, `AS-device-gps`, `AS-device-accelerometer` |
 | OBD-II adapter | `SI-OBD2`, `SI-OBD2-BLUETOOTH`, `SI-OBD2-DATA`, `DE-obd2-hardware`, `DE-obd2-data`, `SI-OBDHOME`, `DE-obd-home` |
 | OpenStreetMap | `SI-OSM`, `DE-openstreetmap` |
-| Reservation system | none yet — closest is `FR-ADMIN-integrations` |
+| Reservation system | `SI-SCHOOL-INTEGRATION`, `DE-school-integration` |
 | AI service | `SI-AI`, `DE-ai` |
 
-`SI-OBDHOME` and `DE-obd-home` are the same adapters the application connects to over Bluetooth while testing vehicle data. The proof of concept loads OpenStreetMap tiles on the live-drive and session-review maps. It already reads appointments and students from a reservation API configured per organization. The specification has no `SI-*` or `DE-*` for that system yet; `FR-ADMIN-integrations` is the requirement that covers integration settings, and vision and scope section 4.3 leaves further reservation work out of the MVP. `SI-AI` and `DE-ai` name an optional service. The proof of concept has no call to one.
+`SI-OBDHOME` and `DE-obd-home` are the same adapters the application connects to over Bluetooth while testing vehicle data. The proof of concept loads OpenStreetMap tiles on the live-drive and session-review maps. It already reads appointments and students from a reservation API configured per organization and sends completed drive results back (`SI-SCHOOL-INTEGRATION`, `DE-school-integration`). Vision and scope section 4.3 leaves further reservation work out of the MVP. `SI-AI` and `DE-ai` name an optional service. The proof of concept has no call to one.
 
 `SI-NODE`, `SI-QUASAR`, `SI-MYSQL`, `SI-CAPACITOR`, `DE-mysql`, and `DE-capacitor` name parts of Drive Grader. They stay inside the one box and are drawn in the container view (section 5). `SI-GITHUB`, `SI-GITHUB-ACTIONS`, `DE-github`, and `DE-github-actions` are how the team stores and deploys the code. Section 8.5 of the specification names no `CI-*` interface. The channels it describes are the API inside Drive Grader, Bluetooth to the adapter, OpenStreetMap, the optional AI service, and Tailscale on the team's development network.
 
