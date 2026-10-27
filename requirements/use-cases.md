@@ -33,6 +33,7 @@ _Within one use case, `PRE-1`, `POST-1`, and the step numbers are local and may 
 | 2026-09-25 | 0.2 | Rewrote Purpose/Scope and Use Case List against Client Meeting 1 (Eric Brown); replaced the template's placeholder example with real Drive Grader use cases (`UC-SESS-start-drive-session`, `UC-DL40-conduct-graded-test`, `UC-HOUR-track-progress`); dropped ANLZ/CONT/MON areas pending confirmation | Kaylynn Slaughter |
 | 2026-09-30 | 0.3 | Added `ACCT`, `SYNC`, and `SETT` areas and re-added `MON` (now optional/low priority) against the team's 28-Oct backlog; fully specified `UC-ACCT-reset-password`, `UC-SYNC-sync-offline-data`, and `UC-ADMIN-manage-student-limit`; flagged backlog items that are not use cases (staging indicator, generic "UI/UX", Tailscale) and redirected them out of this document | Kaylynn Slaughter |
 | 2026-10-02 | 0.4 | Checked every specified use case against the client's Drive Tracker proof of concept and corrected flows that did not match it (DL-40 signatures are captured at drive start, DL-40 grading is per-aspect point deductions, GPS is required to start, simulation is platform-admin only, offline sync has no local ID); mapped every area and use case to the `FEAT-*` list in vision-and-scope; added `UC-ACCT-manage-student-roster` (fully specified) and listed `UC-SESS-edit-drive-grades`, `UC-SESS-delete-drive`, `UC-SESS-generate-drive-report`, `UC-GRAD-view-progress-history`, `UC-HOUR-export-hours-log`, `UC-SYNC-check-system-status`, `UC-SETT-install-app`, `UC-SETT-view-whats-new`; recorded FEATs with no use case yet | Kaylynn Slaughter |
+| 2026-10-27 | 0.5 | Specified `UC-MON-parent-live-tracker` (replaces the listed `UC-MON-observe-live-session`) against the client's Drive Tracker code and the 2026-09-29 meeting; recorded its open issues on scope, the parent-to-student link, delay, consent, and DL-40 visibility | Kaylynn Slaughter |
 
 ---
 
@@ -160,7 +161,7 @@ _Data fields are specified as a table:_
 | `UC-ADMIN-manage-drive-plans` | `FEAT-drive-plans` | Exists (Admin and SaaS Admin pages) | Listed |
 | `UC-ADMIN-manage-maneuvers-and-criteria` | `FEAT-drive-plans` | Exists (Admin and SaaS Admin pages) | Listed |
 | `UC-ADMIN-manage-student-limit` | `FEAT-student-limits` | New | Specified |
-| `UC-MON-observe-live-session` | `FEAT-live-drive-observation` | New | Listed — optional |
+| `UC-MON-parent-live-tracker` | `FEAT-live-drive-observation` | New (no live view, push, or parent-to-school-student link) | Specified — optional |
 | `UC-SETT-toggle-dark-mode` | `FEAT-dark-mode` | New | Listed |
 | `UC-SETT-install-app` | `FEAT-pwa-install-prompts` | Partial (install gate component) | Listed |
 | `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | New | Listed |
@@ -720,6 +721,118 @@ Failure handling: read-only; failure shows an error and changes nothing.
 **Related Use Cases:** `UC-SESS-end-drive-session` (writes the durations); `UC-HOUR-configure-requirements` (sets the targets); `UC-HOUR-export-hours-log` (produces the log the family presents). The backlog's "Progress Meter" is this use case's display, not a separate use case.
 **Assumptions:** A drive that ended in a failed road test still counts toward hours. Confirm.
 **Open Issues:** How is a drive's hour category chosen: by drive type, by the grader at start, or afterward? Observation hours are time the teen watches rather than drives — are they recorded as drives at all, or entered by hand? `FEAT-training-hours-log` also lists night practice, and vision-and-scope mentions 10 required night hours, but `BR-ptde-required-hours` does not include night hours until the state requirement is confirmed. Are required hours configured per school, per state, or both?
+
+---
+
+## MON — Live Parent Observation
+
+### UC-MON-parent-live-tracker: The parent follows their teen's drive live
+
+**UC ID and Name:** `UC-MON-parent-live-tracker`: Follow a teen's drive live
+**Created By:** Team 12
+**Date Created:** 2026-10-27
+**Primary Actor:** parent (not in the car)
+**Secondary Actors:** grader in the car (school instructor or examiner, or another supervising adult), whose device records the drive; GPS provider; push notification service; map tile provider (OpenStreetMap)
+**Trigger:** A drive starts for a student linked to the parent (`UC-SESS-start-drive-session`), or the parent opens the live view of a drive already in progress.
+**Description:** When their teen is driving with someone else, the parent wants to know that a drive has started and follow it as it happens, "like tracking an Uber" (client, 2026-09-29): the route on a map, the teen's current position, the mistakes and notes the grader records, hard braking and hard acceleration, and the distance driven since the start. The parent watches only. They cannot grade, change, or end the drive.
+
+**Preconditions:**
+
+- PRE-1. The parent is logged in.
+- PRE-2. The drive's student is linked to the parent's account (see Open Issues for how that link is made).
+- PRE-3. The drive is in progress: it has a start time, no end time, and is not deleted.
+
+**Postconditions:**
+
+- POST-1. The parent was notified that the drive started, unless notifications are off on their device.
+- POST-2. While the drive is in progress, the parent sees the route so far, the current position with the time it was recorded, the mistakes and grader notes, the motion events, the distance driven, and the elapsed time.
+- POST-3. When the drive ends, the live view stops showing a position, and the parent can no longer see the teen's location until another drive starts.
+- POST-4. Nothing about the drive is changed; this is read-only for the parent.
+
+**Main Success Scenario:**
+
+1. The grader starts a drive for the student (`UC-SESS-start-drive-session`).
+2. The system notifies each parent linked to that student that a drive has started, naming the student and the grader.
+3. The parent opens the notification, or opens the app and selects the drive marked "Live."
+4. The system checks that the drive's student is linked to the parent and that the drive is in progress.
+5. The system shows the live view: a map with the route so far and the current position, the list of mistakes and grader notes, the motion events, the distance driven, the elapsed time, and when the data was last updated.
+6. As the grader's device uploads route points, grades, and motion events, the system adds them to the live view without the parent refreshing.
+7. The grader ends the drive (`UC-SESS-end-drive-session`).
+8. The system marks the drive as finished, stops showing a current position, and shows the final distance, duration, and result (score and pass/fail for a DL-40 drive).
+9. Use case ends.
+
+**Extensions:**
+
+- **2a. The parent is the grader of this drive:**
+    - 2a1. The system does not notify them about their own drive. Any other parent linked to the student is still notified.
+- **2b. Notifications are turned off or not permitted on the parent's device:**
+    - 2b1. The system sends nothing to that device. The drive still appears as "Live" when the parent opens the app. Continue at step 3.
+- **2c. The notification service is unavailable:**
+    - 2c1. The system logs the failure without the student's name or location, and the drive starts normally. Starting a drive never waits on a notification.
+- **3a. The parent has more than one student driving at the same time:**
+    - 3a1. The system lists each live drive separately, and each live view shows one drive. Students' drives are never combined (`BR-parent-multiple-students`).
+- **4a. The drive's student is not linked to the parent, or the parent was unlinked during the drive:**
+    - 4a1. The server refuses with the same response it gives for a drive that does not exist, so it does not reveal that the drive exists. Nothing about the drive is shown, and any open live view stops updating (`BR-parent-own-students`).
+- **4b. The drive has already ended when the parent opens it:**
+    - 4b1. The system says the drive has ended, shows no live position, and offers the finished drive's review (`UC-SESS-view-session-history`).
+- **4c. The drive was deleted:**
+    - 4c1. The system says the drive is no longer available and shows nothing about it.
+- **5a. No route points have arrived yet (GPS fix not yet uploaded):**
+    - 5a1. The system shows the drive as started, with "Waiting for location," rather than a blank or default map position.
+- **6a. The grader's device is offline or has stopped uploading:**
+    - 6a1. The system keeps the last known position on the map, labeled with how long ago it was recorded, and never presents an old position as current.
+    - 6a2. When the device reconnects and its queued data uploads (`UC-SYNC-sync-offline-data`), the system fills in the missing route, mistakes, and events in the order they were recorded.
+- **6b. The grader's app was backgrounded or the phone locked, so GPS paused:**
+    - 6b1. The route shows the gap as a straight jump, as the review map does (`UC-SESS-start-drive-session`, 7c).
+- **6c. The grader removes or replaces a mistake they logged:**
+    - 6c1. The system removes or replaces it in the parent's view too.
+- **6d. No OBD-II adapter is connected:**
+    - 6d1. Motion events come from the phone's motion sensors only. The live view never requires OBD data.
+- **6e. The parent's own connection drops:**
+    - 6e1. The system shows that the live view is reconnecting. When the connection returns, it catches up on everything recorded in the meantime without duplicating anything.
+- **7a. The drive ends in an instant fail (DL-40 drive):**
+    - 7a1. The system marks the drive finished and failed with its result code. Continue at step 8.
+- **7b. The drive is never ended (the grader's app was closed and not reopened):**
+    - 7b1. After a set time with no new data, the system stops showing the drive as "Live" and stops showing its position, even though the drive itself stays open until the grader ends it (see Open Issues).
+- **8a. The grader cannot finish the drive because the device is offline:**
+    - 8a1. The drive stays in progress, and the live view follows 6a until the drive is finalized (`UC-SYNC-sync-offline-data`, 1a).
+
+**Priority:** Low — optional, per Section 3.3 and vision-and-scope (`OI-live-observation`). Do not start it until the `SESS`, `GRAD`, `DL40`, and `HOUR` use cases it depends on are built.
+**Frequency of Use:** Occasional — only for drives where the parent is not in the car, such as lessons with a school's instructor. During those drives, one or two viewers each receive an update every 15 seconds or so.
+**Business Rules:** `BR-parent-own-students`, `BR-parent-multiple-students`, `BR-org-roster`
+
+**Associated Information:**
+
+| Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
+|---|---|---|---|---|
+| current position | Latitude/longitude with timestamp | The drive's most recent route point | A minor's live location (`RI-minor-location-data`). Shown only to the grader and parents linked to the student, and only while the drive is in progress. Never placed in a notification, URL, or log | Route Point |
+| route so far | Ordered list of route points | Ordered by recorded time | Same as current position | Route |
+| distance driven | Miles, one decimal place | Sum of the distances between consecutive route points since the start; computed by the server | Same as current position | Drive Distance |
+| elapsed time | Minutes | From the drive's start to now; computed the same way as drive duration | n/a | Drive Duration |
+| mistake | Grade: maneuver, criterion, score, time, position | Written by the grader (`UC-GRAD-log-infraction`, `UC-DL40-conduct-graded-test`) | Read-only to the parent | Grade |
+| grader note | String | The note attached to a mistake, or the drive's notes entered at start | Read-only to the parent | Drive Conditions |
+| motion event | Enum with time and position | hard braking, hard acceleration, sharp left, sharp right | Read-only to the parent | Motion Event |
+| last updated | Timestamp | Time of the newest data received from the grader's device | n/a | Upload Status |
+| notification | Push message | Names the student and the grader; contains no location | Sent only to parents linked to the student | Notification |
+
+Display: the map fills the screen and follows the current position, with the route drawn as a line and markers for mistakes and motion events. Below it, distance, elapsed time, and "updated X seconds ago," then mistakes, notes, and events in one list, newest first. Use the same map layer as the live-drive and review maps.
+
+Drive Tracker today: no live parent view, no push notifications, and no server push (no WebSocket or server-sent events), so a live view would start by repeatedly polling. The grader's app uploads route points every 15 seconds or every 20 points, whichever comes first, and grades every 10 seconds, so the parent's view lags the car by up to about 15 seconds plus polling time. The endpoints that return a drive's route points, motion events, and grades (`GET /sessions/:id/breadcrumbs`, `GET /sessions/:id/motion-events`, `GET /grades/session/:id`) always return the whole drive, with no way to ask only for what is new. They also check that the caller is logged in but not that the drive belongs to them (Section 3.3). Until that is fixed, any logged-in user could watch any drive by changing the ID. The drive list (`GET /sessions`) shows a user only the drives they graded, or their own drives if they have a student login. Nothing finds "drives of my students graded by someone else." Roster students are separate records per scope, so a school's record for a teen is not linked to the parent's personal record or account. The older join-code link between a parent and a student login (`rosterLegacyScopes.js`) is the only parent-to-student link in the code. Distance driven is not computed anywhere today.
+
+Failure handling: read-only for the parent. A failure shows an error or a stale-data label and changes nothing. The live view and notifications must never slow down or block recording in the car.
+
+**Related Use Cases:** `UC-SESS-start-drive-session` (the trigger); `UC-SESS-end-drive-session` (ends the live view); `UC-GRAD-log-infraction` and `UC-DL40-conduct-graded-test` (write the mistakes shown); `UC-SYNC-sync-offline-data` (explains late data); `UC-SESS-view-session-history` and `UC-GRAD-review-infraction-log` (after the drive ends); `UC-ACCT-create-account` and `UC-ACCT-manage-student-roster` (the separate parent login and the parent-to-student link).
+**Assumptions:** The parent only watches; they cannot message the grader or affect the drive. A parent can never see the teen's location outside a drive in progress. A drive with no linked parent works exactly as it does today.
+**Open Issues:**
+- `OI-live-observation`:Vision-and-scope lists `FEAT-live-drive-observation` as not yet scoped.
+- Who watches? Eric described parents of a school's students watching lessons with his instructors, through a separate parent login. Should a second guardian also be able to follow a parent-taught drive?
+- How is a parent's account linked to a school's roster student: an invitation from the school, the existing join code, or a match on permit number?
+- How much delay is acceptable? "Like tracking an Uber" may mean a few seconds, and today's upload timing gives up to about 15.
+- Should the teen and the grader see an indicator that a parent is watching? Do they, or the school, need to consent first?
+- During an official DL-40 road test, should a parent see deductions as they happen, or only the result at the end?
+- How long without new data before a drive stops showing as "Live" (7b1)?
+- How should notifications reach iPhones? Web push on iPhone works only for an app installed to the home screen; otherwise this needs the native app (`UC-SETT-install-app`).
+- How long is live and route location data kept (`OI-data-retention`)?
 
 ---
 
