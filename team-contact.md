@@ -37,7 +37,8 @@ This clause is about how work moves.
 
 Branch per sub-issue, named **<convention, e.g. feat/42-short-slug>**.
 Never push to `main`. Every change arrives as a pull request.
-A pull request needs **<2>** approving review(s) from someone who does not own the use case.
+When you open a pull request, request **at least one** teammate who does not own the use case as a code reviewer.
+Do not merge until that person has reviewed the pull request.
 A reviewer reads the issue before the diff. Blocking a merge: **<what blocks it>**.
 
 ## 6. Working with AI
