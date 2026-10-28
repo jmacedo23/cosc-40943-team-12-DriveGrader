@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** _[Team 12]_
 **Client:** Eric Brown
-**Version:** 0.1
+**Version:** 0.3
 
 ---
 
@@ -44,6 +44,7 @@ _Rules:_
 |---|---|---|---|
 | _[2026-09-11] | 0.1 | Initial terms from the client brief and first client meeting | Joey Macedo |
 | _[2026-09-23] | 0.2 | Expanded terms after second and third client meeting | Joey Macedo |
+| 2026-10-28 | 0.3 | Added App Version and What's New for `UC-SETT-view-whats-new` | Team 12 |
 
 
 ---
@@ -105,3 +106,19 @@ _**Synonyms:** WAR, used conversationally by the client and in the existing spre
 _**Source:** the client's existing Google Sheets process, described in [vision-and-scope.md](vision-and-scope.md) section 1.2._
 
 _[End of worked examples. Delete them and write your own terms below.]_
+
+### App Version
+
+The version string shipped with the phone client, recorded in the frontend `package.json` and shown to the user. Eric Brown named the current value as 1.0.6 on 2026-09-29 and asked that the patch number increase with each update.
+
+**Not to be confused with:** the version number of a requirements document, the version of a login token, or a deploy build identifier shown beside the app version.
+
+**Source:** client follow-up email, 2026-09-29, benchmark item 8 (`FEAT-versioning-whats-new`).
+
+### What's New
+
+The summary of recent changes shown on the About screen for the app versions shipped with the build. Newer versions are listed first.
+
+**Not to be confused with:** Check for Updates, which compares the copy running on the device with the copy deployed on the server.
+
+**Source:** client follow-up email, 2026-09-29, benchmark item 8 (`FEAT-versioning-whats-new`).

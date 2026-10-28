@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** 12
 **Client:** Eric Brown
-**Version:** 0.4
+**Version:** 0.5
 
 ---
 
@@ -33,6 +33,7 @@ _Within one use case, `PRE-1`, `POST-1`, and the step numbers are local and may 
 | 2026-09-25 | 0.2 | Rewrote Purpose/Scope and Use Case List against Client Meeting 1 (Eric Brown); replaced the template's placeholder example with real Drive Grader use cases (`UC-SESS-start-drive-session`, `UC-DL40-conduct-graded-test`, `UC-HOUR-track-progress`); dropped ANLZ/CONT/MON areas pending confirmation | Kaylynn Slaughter |
 | 2026-09-30 | 0.3 | Added `ACCT`, `SYNC`, and `SETT` areas and re-added `MON` (now optional/low priority) against the team's 28-Oct backlog; fully specified `UC-ACCT-reset-password`, `UC-SYNC-sync-offline-data`, and `UC-ADMIN-manage-student-limit`; flagged backlog items that are not use cases (staging indicator, generic "UI/UX", Tailscale) and redirected them out of this document | Kaylynn Slaughter |
 | 2026-10-02 | 0.4 | Checked every specified use case against the client's Drive Tracker proof of concept and corrected flows that did not match it (DL-40 signatures are captured at drive start, DL-40 grading is per-aspect point deductions, GPS is required to start, simulation is platform-admin only, offline sync has no local ID); mapped every area and use case to the `FEAT-*` list in vision-and-scope; added `UC-ACCT-manage-student-roster` (fully specified) and listed `UC-SESS-edit-drive-grades`, `UC-SESS-delete-drive`, `UC-SESS-generate-drive-report`, `UC-GRAD-view-progress-history`, `UC-HOUR-export-hours-log`, `UC-SYNC-check-system-status`, `UC-SETT-install-app`, `UC-SETT-view-whats-new`; recorded FEATs with no use case yet | Kaylynn Slaughter |
+| 2026-10-28 | 0.5 | Specified `UC-SETT-view-whats-new` from the client's 2026-09-29 benchmark item 8. The version is already shown; the new behavior is the What's New summary shipped with the build | Team 12 |
 
 ---
 
@@ -163,7 +164,7 @@ _Data fields are specified as a table:_
 | `UC-MON-observe-live-session` | `FEAT-live-drive-observation` | New | Listed — optional |
 | `UC-SETT-toggle-dark-mode` | `FEAT-dark-mode` | New | Listed |
 | `UC-SETT-install-app` | `FEAT-pwa-install-prompts` | Partial (install gate component) | Listed |
-| `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | New | Listed |
+| `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | Partial (version on login and About; no summary) | Specified |
 
 ### 3.3 Notes
 
@@ -723,6 +724,65 @@ Failure handling: read-only; failure shows an error and changes nothing.
 
 ---
 
+## SETT — App Settings
+
+### UC-SETT-view-whats-new: The user views the app version and recent changes
+
+**UC ID and Name:** `UC-SETT-view-whats-new`: View the app version and recent changes
+**Created By:** Team 12
+**Date Created:** 2026-10-28
+**Primary Actor:** any signed-in user
+**Secondary Actors:** none
+**Trigger:** The user selects About.
+**Description:** The user wants to see which version of the app they are running and what changed recently. This is `FEAT-versioning-whats-new`, client benchmark item 8 from the 2026-09-29 follow-up email.
+
+**Preconditions:**
+
+- PRE-1. The user is logged in, so About is available.
+
+**Postconditions:**
+
+- POST-1. The user has been shown the app version shipped with this build, or told that the version is unavailable.
+- POST-2. The user has been shown the What's New entries shipped with this build, newest version first, or told that this version has no summary.
+- POST-3. Nothing is stored or changed. This is read-only.
+
+**Main Success Scenario:**
+
+1. The user selects About.
+2. The system reads the app version shipped with this build and the What's New entries shipped with it.
+3. The system shows the app version and those entries, newest version first.
+4. Use case ends.
+
+**Extensions:**
+
+- **2a. No What's New entry is shipped for this app version:**
+    - 2a1. The system shows the app version and states that this version has no summary. Entries for older versions still appear, newest first. If none are shipped, the system states that there is no summary.
+- **2b. The app version cannot be read:**
+    - 2b1. The system says the version is unavailable and does not substitute a number, including `0.0.0`. What's New entries that are shipped still appear.
+
+**Priority:** Medium — client benchmark item 8.
+**Frequency of Use:** Occasional. A user opens About to check the version or recent changes. The summary changes once per release.
+**Business Rules:** none
+
+**Associated Information:**
+
+| Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
+|---|---|---|---|---|
+| app version | String | The version shipped with this build, taken from the frontend `package.json` and shown as shipped | Visible on About to any signed-in user. The login screen already shows it too; that line is not this use case | App Version |
+| what's new entry | String | Shipped with the build. Each entry names the app version it describes | Product text, visible on About to any signed-in user. It must not contain a password, token, or other secret | What's New |
+
+The What's New text is content shipped in the app, not a row loaded from the API. A release that changes the app bumps the patch version and updates this summary. A deploy build identifier may be shown beside the app version; it is not the app version, and What's New is keyed to the app version.
+
+Drive Tracker today: `frontend/package.json` is 1.0.6, and the Quasar build exposes it as `APP_VERSION`. The login screen shows that version. The signed-in drawer opens an About dialog that shows the same version, a deploy build identifier when one is loaded, and a one-line product description. There is no What's New summary. If `APP_VERSION` is missing, the screen shows `0.0.0`, which extension 2b replaces.
+
+Failure handling: read-only. A missing version or a missing summary is shown as such and changes nothing.
+
+**Related Use Cases:** none. `UC-SETT-toggle-dark-mode` and `UC-SETT-install-app` share the area and do not invoke this use case.
+**Assumptions:** The summary ships with the build. Opening About requires a signed-in session, because that is where About lives today. The login screen's version line stays as it is.
+**Open Issues:** none.
+
+---
+
 ## Working these with your agent
 
 _[Delegate: drafting the main success scenario once you have the trigger and the goal; proposing extensions you have not thought of, which it is genuinely good at; turning a filled-in use case into a first set of test cases; checking that every `BR-*` you cite exists in [business-rules.md](business-rules.md).]_
@@ -734,7 +794,7 @@ _The verification that catches the most: read the main success scenario aloud to
 _**Checklist for each use case:** Does the name start with a verb? Can the system test every precondition? Does every step alternate actor and system? Is there at least one extension per step that can fail? Does every business rule appear as an identifier only? Could a tester write test cases from this without asking you anything?_
 
 **What's left before this document is stable:**
-- Specify the use cases marked "Listed" in Section 3.2. Start with the ones Drive Tracker already does (`UC-SESS-end-drive-session`, `UC-GRAD-log-infraction`, `UC-GRAD-review-infraction-log`, `UC-OBD-*`, `UC-DL40-configure-checklist`, `UC-DL40-capture-signatures-and-print`), since the code answers most questions, then the client benchmark items (`UC-SYNC-check-system-status`, `UC-SESS-filter-session-history`, `UC-SESS-generate-drive-report`, `UC-SESS-select-map-layer`, `UC-SETT-*`).
+- Specify the use cases marked "Listed" in Section 3.2. Start with the ones Drive Tracker already does (`UC-SESS-end-drive-session`, `UC-GRAD-log-infraction`, `UC-GRAD-review-infraction-log`, `UC-OBD-*`, `UC-DL40-configure-checklist`, `UC-DL40-capture-signatures-and-print`), since the code answers most questions, then the client benchmark items (`UC-SYNC-check-system-status`, `UC-SESS-filter-session-history`, `UC-SESS-generate-drive-report`, `UC-SESS-select-map-layer`, `UC-SETT-toggle-dark-mode`, `UC-SETT-install-app`).
 - `UC-DL40-suggest-route` has no `FEAT-*` entry. Either add one to vision-and-scope with the client's agreement, or drop the use case.
 - Add `BR-password-complexity` and `BR-reset-token-expiry` to [business-rules.md](business-rules.md). `BR-max-students-per-account` waits on Eric naming N.
 - Raise the access-control gap in Section 3.3 with the team; it affects every drive-reading use case and is a privacy risk for minors' location data (`RI-minor-location-data`).
