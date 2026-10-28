@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** 12
 **Client:** Eric Brown
-**Version:** 0.4
+**Version:** 0.6
 
 ---
 
@@ -34,6 +34,7 @@ _Within one use case, `PRE-1`, `POST-1`, and the step numbers are local and may 
 | 2026-09-30 | 0.3 | Added `ACCT`, `SYNC`, and `SETT` areas and re-added `MON` (now optional/low priority) against the team's 28-Oct backlog; fully specified `UC-ACCT-reset-password`, `UC-SYNC-sync-offline-data`, and `UC-ADMIN-manage-student-limit`; flagged backlog items that are not use cases (staging indicator, generic "UI/UX", Tailscale) and redirected them out of this document | Kaylynn Slaughter |
 | 2026-10-02 | 0.4 | Checked every specified use case against the client's Drive Tracker proof of concept and corrected flows that did not match it (DL-40 signatures are captured at drive start, DL-40 grading is per-aspect point deductions, GPS is required to start, simulation is platform-admin only, offline sync has no local ID); mapped every area and use case to the `FEAT-*` list in vision-and-scope; added `UC-ACCT-manage-student-roster` (fully specified) and listed `UC-SESS-edit-drive-grades`, `UC-SESS-delete-drive`, `UC-SESS-generate-drive-report`, `UC-GRAD-view-progress-history`, `UC-HOUR-export-hours-log`, `UC-SYNC-check-system-status`, `UC-SETT-install-app`, `UC-SETT-view-whats-new`; recorded FEATs with no use case yet | Kaylynn Slaughter |
 | 2026-10-27 | 0.5 | Specified `UC-MON-parent-live-tracker` (replaces the listed `UC-MON-observe-live-session`) against the client's Drive Tracker code and the 2026-09-29 meeting; recorded its open issues on scope, the parent-to-student link, delay, consent, and DL-40 visibility | Kaylynn Slaughter |
+| 2026-10-27 | 0.6 | Specified `UC-SETT-toggle-dark-mode` from the header theme control: the choice is stored on the device, light is the default, and paper surfaces stay light | Kaylee |
 
 ---
 
@@ -162,7 +163,7 @@ _Data fields are specified as a table:_
 | `UC-ADMIN-manage-maneuvers-and-criteria` | `FEAT-drive-plans` | Exists (Admin and SaaS Admin pages) | Listed |
 | `UC-ADMIN-manage-student-limit` | `FEAT-student-limits` | New | Specified |
 | `UC-MON-parent-live-tracker` | `FEAT-live-drive-observation` | New (no live view, push, or parent-to-school-student link) | Specified — optional |
-| `UC-SETT-toggle-dark-mode` | `FEAT-dark-mode` | New | Listed |
+| `UC-SETT-toggle-dark-mode` | `FEAT-dark-mode` | Exists (header control; stored on the device) | Specified |
 | `UC-SETT-install-app` | `FEAT-pwa-install-prompts` | Partial (install gate component) | Listed |
 | `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | New | Listed |
 
@@ -836,6 +837,71 @@ Failure handling: read-only for the parent. A failure shows an error or a stale-
 
 ---
 
+## SETT — App Settings
+
+### UC-SETT-toggle-dark-mode: The user switches between light and dark
+
+**UC ID and Name:** `UC-SETT-toggle-dark-mode`: Switch between light and dark
+**Created By:** Kaylee
+**Date Created:** 2026-10-27
+**Primary Actor:** any signed-in user (parent, student, instructor, examiner, or administrator)
+**Secondary Actors:** none
+**Trigger:** The user selects the theme button in the header, next to logout.
+**Description:** The user switches the app between light and dark so it stays readable in sun or at night. The app remembers that choice on this device and applies it on the next visit, including before the user signs in.
+
+**Preconditions:**
+- PRE-1. The user is signed in. The theme button is on the signed-in header. Login and register have no theme button; they only show a choice that was saved earlier.
+
+**Postconditions:**
+- POST-1. Pages, the navigation drawer, cards, and inputs use the theme the user just chose.
+- POST-2. The choice is stored on this device. The next time the app opens here, that theme is already applied, including on login and register, until the user changes it.
+
+**Main Success Scenario:**
+
+1. The user selects the theme button in the header. In light mode the button is a moon ("Dark mode"); in dark mode it is a sun ("Light mode").
+2. The system switches pages, the navigation drawer, cards, and inputs to the other theme. Register, the install screen, inactive administrator rows, and the About dialog follow the same theme, and the About version and description stay readable.
+3. The system stores the choice on this device.
+4. The next time the app opens on this device, the system applies the stored choice before the first screen, including login and register.
+5. Use case ends.
+
+**Extensions:**
+
+- **1a. The screen is phone width:**
+    - 1a1. The system hides the user's name in the header so the theme button fits beside the logo and logout. The name remains in the navigation drawer.
+    - 1a2. Continue at step 2.
+- **2a. A grading drive is in progress:**
+    - 2a1. The system still switches the theme. The menu and logout stay unavailable, and recording is not interrupted.
+    - 2a2. Continue at step 3.
+- **2b. The signature pad or the DL-40 preview is on screen:**
+    - 2b1. The system leaves those surfaces light. They represent the paper form.
+    - 2b2. Continue at step 3.
+- **3a. The device cannot store the choice:**
+    - 3a1. The system still applies the theme for this visit. The next visit starts in light mode.
+- **4a. No choice is stored (first visit, or the stored choice was cleared):**
+    - 4a1. The system starts in light mode. The user has to select the theme button to turn dark mode on.
+
+**Priority:** Medium — client benchmark (`FEAT-dark-mode`), in the MVP, and smaller than vehicle data.
+**Frequency of Use:** Occasional — usually once per device. Later visits restore the choice without the user selecting the button.
+**Business Rules:** none
+
+**Associated Information:**
+
+| Property name | Data type | Validation rule | Security or access concerns | Glossary reference |
+|---|---|---|---|---|
+| theme choice | Boolean | Dark or light. Absent means light | Stored on the device, not on the account. Signing out does not clear it. Anyone who uses this phone shares it | n/a |
+
+Display: one header button beside logout. Moon means "switch to dark"; sun means "switch to light." On a phone-width screen the header shows the menu, logo, theme button, and logout, and hides the name.
+
+Drive Tracker today: the signed-in header calls Quasar's dark mode and stores the boolean on the device (`drive-tracker-dark-mode`). On startup a saved boolean is applied; otherwise the app stays light. The theme button stays enabled during an active drive; the menu and logout do not. The signature pad and the DL-40 preview keep a white background. Register, the install screen, inactive administrator rows, and About follow the active theme. The login page's blue banner stays as drawn; the sign-in card follows the stored theme.
+
+Failure handling: the choice is local to the device. A failure to store it changes nothing on the server and does not affect the drive. The theme for the current visit still changes.
+
+**Related Use Cases:** `UC-SETT-install-app` (the install screen follows the theme); `UC-DL40-capture-signatures-and-print` (the signature pad and DL-40 preview stay light); `UC-SESS-start-drive-session` (the button still works during the drive).
+**Assumptions:** One theme for the whole device is enough. The choice does not follow the user to another phone.
+**Open Issues:** none
+
+---
+
 ## Working these with your agent
 
 _[Delegate: drafting the main success scenario once you have the trigger and the goal; proposing extensions you have not thought of, which it is genuinely good at; turning a filled-in use case into a first set of test cases; checking that every `BR-*` you cite exists in [business-rules.md](business-rules.md).]_
@@ -847,7 +913,7 @@ _The verification that catches the most: read the main success scenario aloud to
 _**Checklist for each use case:** Does the name start with a verb? Can the system test every precondition? Does every step alternate actor and system? Is there at least one extension per step that can fail? Does every business rule appear as an identifier only? Could a tester write test cases from this without asking you anything?_
 
 **What's left before this document is stable:**
-- Specify the use cases marked "Listed" in Section 3.2. Start with the ones Drive Tracker already does (`UC-SESS-end-drive-session`, `UC-GRAD-log-infraction`, `UC-GRAD-review-infraction-log`, `UC-OBD-*`, `UC-DL40-configure-checklist`, `UC-DL40-capture-signatures-and-print`), since the code answers most questions, then the client benchmark items (`UC-SYNC-check-system-status`, `UC-SESS-filter-session-history`, `UC-SESS-generate-drive-report`, `UC-SESS-select-map-layer`, `UC-SETT-*`).
+- Specify the use cases marked "Listed" in Section 3.2. Start with the ones Drive Tracker already does (`UC-SESS-end-drive-session`, `UC-GRAD-log-infraction`, `UC-GRAD-review-infraction-log`, `UC-OBD-*`, `UC-DL40-configure-checklist`, `UC-DL40-capture-signatures-and-print`), since the code answers most questions, then the client benchmark items (`UC-SYNC-check-system-status`, `UC-SESS-filter-session-history`, `UC-SESS-generate-drive-report`, `UC-SESS-select-map-layer`, `UC-SETT-install-app`, `UC-SETT-view-whats-new`). `UC-SETT-toggle-dark-mode` is specified.
 - `UC-DL40-suggest-route` has no `FEAT-*` entry. Either add one to vision-and-scope with the client's agreement, or drop the use case.
 - Add `BR-password-complexity` and `BR-reset-token-expiry` to [business-rules.md](business-rules.md). `BR-max-students-per-account` waits on Eric naming N.
 - Raise the access-control gap in Section 3.3 with the team; it affects every drive-reading use case and is a privacy risk for minors' location data (`RI-minor-location-data`).
