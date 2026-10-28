@@ -165,7 +165,7 @@ _Data fields are specified as a table:_
 | `UC-MON-parent-live-tracker` | `FEAT-live-drive-observation` | New (no live view, push, or parent-to-school-student link) | Specified — optional |
 | `UC-SETT-toggle-dark-mode` | `FEAT-dark-mode` | Exists (header control; stored on the device) | Specified |
 | `UC-SETT-install-app` | `FEAT-pwa-install-prompts` | Partial (install gate component) | Listed |
-| `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | New | Listed |
+| `UC-SETT-view-whats-new` | `FEAT-versioning-whats-new` | Partial (version on login and About; no summary) | Specified |
 
 ### 3.3 Notes
 

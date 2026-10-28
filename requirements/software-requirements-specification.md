@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.2
+**Version:** 0.3
 
 ---
 
@@ -42,6 +42,7 @@ Requirements cited from other documents retain their own identifiers, such as `U
 | ---------- | ------- | ------------- | ------- |
 | 2026-09-23 | 0.1     | Initial draft | Team 12 |
 | 2026-10-02 | 0.2     | Added `SI-SCHOOL-INTEGRATION` and `DE-school-integration` for the organization scheduling and student system | Team 12 |
+| 2026-10-28 | 0.3     | Added `FR-SETT-show-version` for `UC-SETT-view-whats-new` | Team 12 |
 
 ---
 
@@ -275,6 +276,7 @@ Known use-case areas include:
 * Performing digital DL-40 grading.
 * Managing driver information.
 * Managing organizations and accounts.
+* Viewing the app version and recent changes.
 
 ## 5.2 Non-use-case functional requirements
 
@@ -410,6 +412,10 @@ Vehicle information currently being investigated includes:
 * Other available engine and vehicle metrics.
 
 Whether the selected OBD2 devices provide turn-signal and brake-light information is [TBD].
+
+### App settings
+
+**FR-SETT-show-version:** The system shall display the app version shipped with the build and a What's New summary of changes for that version.
 
 ### Optional AI
 

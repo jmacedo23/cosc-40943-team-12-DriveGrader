@@ -188,6 +188,7 @@ The initial matrix is based on the current specification. Implementation and tes
 | `UC-OBD-stream-vehicle-data` | `FR-OBD2-data`, `FR-OBD2-correlate` | None currently identified | Feasibility work required | Hardware verification required | Blocked |
 | `UC-ADMIN-manage-drive-plans` | `FR-ADMIN-drive-plans` | None currently identified | Not yet linked | Not yet linked | Specified |
 | `UC-ADMIN-manage-maneuvers-and-criteria` | `FR-ADMIN-maneuvers`, `FR-ADMIN-score-criteria` | `BR-dl40-maneuver-deductions` where applicable | Not yet linked | Not yet linked | Specified |
+| `UC-SETT-view-whats-new` | `FR-SETT-show-version` | None currently identified | Not yet linked | Not yet linked | Specified |
 
 The following status values are used:
 
