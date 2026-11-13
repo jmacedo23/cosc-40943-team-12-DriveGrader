@@ -38,6 +38,7 @@ _[These are slugs, like every other identifier in your project, so an inserted d
 | 0.2 | 2026-10-02 | Mameo007 | First draft of section 8, from the client's proof of concept |
 | 0.3 | 2026-10-02 | Team 12 | Section 9: architecturally significant requirements and key decisions drawn from the client's Drive Tracker application |
 | 0.4 | 2026-10-05 | Kaylee | Section 3: cite `SI-SCHOOL-INTEGRATION` and `DE-school-integration` for the reservation system |
+| 0.5 | 2026-10-28 | Mameo007 | Section 5.2: `SETT` also owns the App Version and What's New summary on About (`UC-SETT-view-whats-new`) |
 
 ---
 
@@ -262,7 +263,7 @@ Areas are the ten in [use cases](../requirements/use-cases.md) section 3. Sectio
 | `SYNC` | Offline sync | Owns session data recorded without a connection and the upload of that queue once the phone can reach the API | Drive sessions, Phone client | provisional |
 | `ADMIN` | Organization administration | Owns an organization's drive plans, maneuvers, score criteria, student limit, and reservation-system settings | Accounts, Reservation system | provisional |
 | `MON` | Live observation | Owns an optional live view of an in-progress drive | Drive sessions | provisional |
-| `SETT` | App settings | Owns display preferences on the phone, including dark mode | Phone client | provisional |
+| `SETT` | App settings | Owns on-device display preferences, including dark mode, and the App Version and What's New summary shown on About | Phone client | provisional |
 | (cross-cutting) | Phone client | The only component that reads GPS, the accelerometer, and the OBD-II adapter, and the only one that draws the route on OpenStreetMap | Mobile device sensors, OBD-II adapter, OpenStreetMap | provisional |
 | (cross-cutting) | Drive analysis | Owns the optional request for analysis of a recorded drive | AI service | provisional |
 

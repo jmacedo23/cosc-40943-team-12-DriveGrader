@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.2
+**Version:** 0.3
 
 ---
 
@@ -37,6 +37,7 @@ _Why this matters more with an agent than it used to: ask an agent to insert a n
 |---|---|---|---|
 | 2026-09-25 | 0.1 | Initial draft from the client brief (2026-08-27), client meeting #1 (2026-09-08), team meetings #2–#4 (2026-09-15 to 2026-09-22), and the team's OBD-II research notes | Syrah Omar (Team 12) |
 | 2026-09-30 | 0.2 | Merged in the client Zoom meeting (Parts 1–2) and Eric's follow-up "benchmark ideas" email: deployment/dev workflow detail (staging URLs, `STG` branching, Cloudflare, BMAD/Cursor practices), SaaS admin access, the demo-day milestone, additional product ideas (live parent viewing, scheduling, multi-student data separation, more session types), and 11 client-requested benchmark items added as features and MVP scope | Syrah Omar (Team 12) |
+| 2026-10-28 | 0.3 | Marked `FEAT-dark-mode` as the header control that stores the choice on the device | Team 12 |
 
 ---
 
@@ -597,7 +598,7 @@ _Examples:_
 - `FEAT-student-limits`: Enforce a configurable maximum number of students per account or profile — the client's suggested mechanism for monetizing the product (section 2.1). _(New; client benchmark item 5.)_
 - `FEAT-versioning-whats-new`: Track and display the app's version (currently 1.0.6, in `package.json`), incrementing the patch version with each release, and show a "What's New" summary of recent changes on the About screen. _(New; client benchmark item 8.)_
 - `FEAT-aerial-map-layer`: Offer an aerial/satellite imagery layer on the OpenStreetMap-based map, in addition to the standard street layer. _(New; client benchmark item 9.)_
-- `FEAT-dark-mode`: Offer a dark color theme for the app. _(New; client benchmark item 10.)_
+- `FEAT-dark-mode`: Offer a dark color theme for the app. _(Header control; the choice is stored on the device. Client benchmark item 10.)_
 - `FEAT-pwa-install-prompts`: Prompt and guide users, in-app, to install the app to their home screen as a PWA, and later from an app store. _(New; client benchmark item 11.)_
 
 ### 4.3 MVP Scope

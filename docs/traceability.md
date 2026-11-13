@@ -170,25 +170,28 @@ The exact test or procedure should be linked in the matrix.
 
 ### Current Drive Grader traceability matrix
 
-The initial matrix is based on the current specification. Implementation and tests should be added as they are created.
+The requirement columns and **Status** are the specification-side record. `/design` and `/implement` update **Build**, **Design**, **Code**, **Tests**, and **Verify**. They leave **Status** alone unless a person asks to change it.
 
-| Use Case | Functional Requirement(s) | Business Rule(s) | Design / Code | Test / Verification | Status |
-|---|---|---|---|---|---|
-| `UC-SESS-start-drive-session` | `FR-DRIVE-start`, `FR-DRIVE-route`, `FR-METRICS-gps` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-SESS-end-drive-session` | `FR-DRIVE-save`, `FR-DRIVE-summary` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-SESS-view-session-history` | `FR-DRIVE-summary` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-GRAD-log-infraction` | `FR-INFRACTION-record` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-GRAD-review-infraction-log` | `FR-DRIVE-summary`, `FR-INFRACTION-record` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-DL40-configure-checklist` | `FR-DL40-reorder`, `FR-DL40-maneuvers`, `FR-DL40-route-order` | `BR-dl40-maneuver-deductions` | Not yet linked | Not yet linked | Specified |
-| `UC-DL40-conduct-graded-test` | `FR-DL40-digital`, `FR-DL40-driver`, `FR-DL40-guardian`, `FR-DL40-maneuvers`, `FR-DL40-route-order` | `BR-dl40-maneuver-deductions` | Not yet linked | Not yet linked | Specified |
-| `UC-DL40-capture-signatures-and-print` | `FR-DL40-signatures`, `FR-DL40-output` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-HOUR-track-progress` | `FR-HOURS-record`, `FR-HOURS-categories`, `FR-HOURS-progress` | Applicable hour rules must be linked when finalized | Not yet linked | Not yet linked | Specified |
-| `UC-HOUR-configure-requirements` | Requirement mapping needs clarification | Applicable hour rules must be linked when finalized | Not yet linked | Not yet linked | TBD |
-| `UC-OBD-pair-device` | `FR-OBD2-connect`, `FR-OBD2-bluetooth` | None currently identified | Feasibility work required | Hardware verification required | Blocked |
-| `UC-OBD-stream-vehicle-data` | `FR-OBD2-data`, `FR-OBD2-correlate` | None currently identified | Feasibility work required | Hardware verification required | Blocked |
-| `UC-ADMIN-manage-drive-plans` | `FR-ADMIN-drive-plans` | None currently identified | Not yet linked | Not yet linked | Specified |
-| `UC-ADMIN-manage-maneuvers-and-criteria` | `FR-ADMIN-maneuvers`, `FR-ADMIN-score-criteria` | `BR-dl40-maneuver-deductions` where applicable | Not yet linked | Not yet linked | Specified |
-| `UC-SETT-view-whats-new` | `FR-SETT-show-version` | None currently identified | Not yet linked | Not yet linked | Specified |
+This table does not copy "Exists" or "Partial" notes from [requirements/use-cases.md](../requirements/use-cases.md). A disagreement between a row and the code is recorded in [DEVIATIONS.md](DEVIATIONS.md). Name it and ask. Do not repair either side until a person chooses.
+
+| Use Case | Functional Requirement(s) | Business Rule(s) | Status | Build | Design | Code | Tests | Verify |
+|---|---|---|---|---|---|---|---|---|
+| `UC-SESS-start-drive-session` | `FR-DRIVE-start`, `FR-DRIVE-route`, `FR-METRICS-gps` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-SESS-end-drive-session` | `FR-DRIVE-save`, `FR-DRIVE-summary` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-SESS-view-session-history` | `FR-DRIVE-summary` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-GRAD-log-infraction` | `FR-INFRACTION-record` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-GRAD-review-infraction-log` | `FR-DRIVE-summary`, `FR-INFRACTION-record` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-DL40-configure-checklist` | `FR-DL40-reorder`, `FR-DL40-maneuvers`, `FR-DL40-route-order` | `BR-dl40-maneuver-deductions` | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-DL40-conduct-graded-test` | `FR-DL40-digital`, `FR-DL40-driver`, `FR-DL40-guardian`, `FR-DL40-maneuvers`, `FR-DL40-route-order` | `BR-dl40-maneuver-deductions` | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-DL40-capture-signatures-and-print` | `FR-DL40-signatures`, `FR-DL40-output` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-HOUR-track-progress` | `FR-HOURS-record`, `FR-HOURS-categories`, `FR-HOURS-progress` | Applicable hour rules must be linked when finalized | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-HOUR-configure-requirements` | Requirement mapping needs clarification | Applicable hour rules must be linked when finalized | TBD | TBD | — | Not yet linked | Not yet linked | — |
+| `UC-OBD-pair-device` | `FR-OBD2-connect`, `FR-OBD2-bluetooth` | None currently identified | Blocked | Blocked | — | Feasibility work required | Hardware verification required | — |
+| `UC-OBD-stream-vehicle-data` | `FR-OBD2-data`, `FR-OBD2-correlate` | None currently identified | Blocked | Blocked | — | Feasibility work required | Hardware verification required | — |
+| `UC-ADMIN-manage-drive-plans` | `FR-ADMIN-drive-plans` | None currently identified | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-ADMIN-manage-maneuvers-and-criteria` | `FR-ADMIN-maneuvers`, `FR-ADMIN-score-criteria` | `BR-dl40-maneuver-deductions` where applicable | Specified | ❌ Not started | — | Not yet linked | Not yet linked | — |
+| `UC-SETT-view-whats-new` | `FR-SETT-show-version` | None currently identified | Specified | ✅ Built | `design/sett.md` | `frontend/src/utils/whatsNew.js`, `frontend/src/layouts/MainLayout.vue` | `frontend/src/utils/whatsNew.test.js` covers main, 2a (older entries and nothing shipped), 2b, and entry shape | ✅ Verified |
+| `UC-SETT-toggle-dark-mode` | `FR-SETT-dark-mode` | None currently identified | Implemented | ✅ Built | — | `frontend/src/boot/dark-mode.js`, `frontend/src/layouts/MainLayout.vue` | Not yet linked | 🔎 None |
 
 The following status values are used:
 
@@ -201,7 +204,19 @@ The following status values are used:
 | **Blocked** | A dependency or unresolved issue prevents reliable implementation. |
 | **TBD** | The requirement needs clarification before a trustworthy trace can be established. |
 
+`/design` and `/implement` use these columns:
+
+| Column | Meaning |
+|---|---|
+| **Build** | `❌ Not started` has no design. `📐 Designed` has a merged design-of-record. `🟡 In progress` or `✅ Built` is implementation. `Blocked` and `TBD` are copied from Status and are not ready to design. |
+| **Design** | Path of the area design-of-record, relative to `docs/`. |
+| **Code** | Implementation files linked for this use case. |
+| **Tests** | Tests or a hardware procedure linked for this use case. |
+| **Verify** | `✅ Verified` when tests cover the main flow and every extension and pass. `🟡 Partial` when some of that is tested. `🔎 None` when nothing tests it. |
+
 ### Three ways the specification and the code drift apart
+
+On this team, name which shape you see and ask. Apply a repair only after a person chooses it. The client wrote the current code before these documents, except dark mode.
 
 The backward edge asks which requirement authorized a given piece of code. On a real codebase the answer can be "none", and that answer generally appears in three forms.
 

@@ -3,7 +3,7 @@
 **Project:** Drive Grader
 **Team:** Team 12
 **Client:** Eric Brown
-**Version:** 0.3
+**Version:** 0.4
 
 ---
 
@@ -43,6 +43,7 @@ Requirements cited from other documents retain their own identifiers, such as `U
 | 2026-09-23 | 0.1     | Initial draft | Team 12 |
 | 2026-10-02 | 0.2     | Added `SI-SCHOOL-INTEGRATION` and `DE-school-integration` for the organization scheduling and student system | Team 12 |
 | 2026-10-28 | 0.3     | Added `FR-SETT-show-version` for `UC-SETT-view-whats-new` | Team 12 |
+| 2026-10-28 | 0.4     | Added `FR-SETT-dark-mode` for `UC-SETT-toggle-dark-mode` | Team 12 |
 
 ---
 
@@ -416,6 +417,8 @@ Whether the selected OBD2 devices provide turn-signal and brake-light informatio
 ### App settings
 
 **FR-SETT-show-version:** The system shall display the app version shipped with the build and a What's New summary of changes for that version.
+
+**FR-SETT-dark-mode:** The system shall let a signed-in user switch between light and dark from the header, store that choice on the device, and apply it on the next visit, including before sign-in. The signature pad and the DL-40 preview stay light.
 
 ### Optional AI
 
